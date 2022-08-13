@@ -138,6 +138,34 @@ impl<T: Num> One for Vector4<T> {
 
 impl<T: Num> Vector4<T> {
     #[inline(always)]
+    pub fn e0() -> Self {
+        let _0 = T::zero();
+        let _1 = T::one();
+        Self(_1, _0, _0, _0)
+    }
+
+    #[inline(always)]
+    pub fn e1() -> Self {
+        let _0 = T::zero();
+        let _1 = T::one();
+        Self(_0, _1, _0, _0)
+    }
+
+    #[inline(always)]
+    pub fn e2() -> Self {
+        let _0 = T::zero();
+        let _1 = T::one();
+        Self(_0, _0, _1, _0)
+    }
+
+    #[inline(always)]
+    pub fn e3() -> Self {
+        let _0 = T::zero();
+        let _1 = T::one();
+        Self(_0, _0, _0, _1)
+    }
+
+    #[inline(always)]
     pub fn abs2(&self) -> T {
         self.0 * self.0 + self.1 * self.1 + self.2 * self.2 + self.3 * self.3
     }
@@ -189,33 +217,7 @@ mod tests {
 
     use quickcheck_macros::quickcheck;
 
-    #[quickcheck]
-    fn addition(a: i32_4, b: i32_4, c: i32_4) -> bool {
-        (a.clone() + &i32_4::zero() == a.clone())
-            && (a.clone() + &b == b.clone() + &a)
-            && ((a.clone() + &b) + &c == a.clone() + &(b.clone() + &c))
-    }
-
-    #[quickcheck]
-    fn subtraction(a: i32_4, b: i32_4) -> bool {
-        (a.clone() - &a + &a == a.clone())
-            && (a.clone() - &b == i32_4::zero() - &(b.clone() - &a))
-            && (a.clone() + &i32_4::zero() == a.clone())
-    }
-
-    #[quickcheck]
-    fn scalar_multiplication(a: i32_4, Small(alpha): Small<i32>, Small(beta): Small<i32>) -> bool {
-        (a.clone() * i32::zero() == i32_4::zero())
-            && (a.clone() * i32::one() == a.clone())
-            && ((a.clone() * alpha) * beta == a.clone() * (alpha * beta))
-    }
-
-    #[quickcheck]
-    fn scalar_division(a: i32_4, Small(alpha): Small<i32>) -> bool {
-        (a.clone() * 1 == a.clone())
-            && (a.clone() * 0 == i32_4::zero())
-            && (a.clone() * alpha / alpha == a.clone())
-    }
+    LinearSpace_tests!(i32_4);
 
     #[quickcheck]
     fn dot_product(a: i32_4, b: i32_4, Small(alpha): Small<i32>) -> bool {
