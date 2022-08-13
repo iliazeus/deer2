@@ -24,7 +24,7 @@ pub type f32_4 = Vector4<f32>;
 pub type f64_4 = Vector4<f64>;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
-pub struct Vector4<T: Num>(T, T, T, T);
+pub struct Vector4<T: Num>(pub T, pub T, pub T, pub T);
 
 impl<T: Num> LinearSpace for Vector4<T> {
     type Scalar = T;
