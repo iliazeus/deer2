@@ -26,7 +26,6 @@ pub trait LinearSpace:
 }
 
 #[cfg(test)]
-#[macro_export]
 macro_rules! LinearSpace_tests {
     ($T:ident) => {
         mod linear_space {
