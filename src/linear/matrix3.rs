@@ -194,6 +194,44 @@ impl<T: Num> Matrix3<T> {
         Self(v0, v1, v2).tr()
     }
 }
+
+impl<T: Num> Matrix3<T> {
+    pub fn det(&self) -> T {
+        let d00 = T::zero() + (self.1 .1 * self.2 .2 - self.1 .2 * self.2 .1);
+        let d01 = T::zero() - (self.1 .0 * self.2 .2 - self.1 .2 * self.2 .0);
+        let d02 = T::zero() + (self.0 .0 * self.1 .1 - self.0 .1 * self.1 .0);
+
+        let det = self.0 .0 * d00 + self.0 .1 * d01 + self.0 .2 * d02;
+
+        det
+    }
+
+    pub fn inv(&self) -> Option<Self> {
+        let d00 = T::zero() + (self.1 .1 * self.2 .2 - self.1 .2 * self.2 .1);
+        let d01 = T::zero() - (self.1 .0 * self.2 .2 - self.1 .2 * self.2 .0);
+        let d02 = T::zero() + (self.1 .0 * self.2 .1 - self.1 .1 * self.2 .0);
+
+        let d10 = T::zero() - (self.0 .1 * self.2 .2 - self.0 .2 * self.2 .1);
+        let d11 = T::zero() + (self.0 .0 * self.2 .2 - self.0 .2 * self.2 .0);
+        let d12 = T::zero() - (self.0 .0 * self.2 .1 - self.0 .1 * self.2 .0);
+
+        let d20 = T::zero() + (self.0 .1 * self.1 .2 - self.0 .2 * self.1 .1);
+        let d21 = T::zero() - (self.0 .0 * self.1 .2 - self.0 .2 * self.1 .0);
+        let d22 = T::zero() + (self.0 .0 * self.1 .1 - self.0 .1 * self.1 .0);
+
+        let det = self.0 .0 * d00 + self.0 .1 * d01 + self.0 .2 * d02;
+
+        if det == T::zero() {
+            return None;
+        }
+
+        let result = Self(
+            Vector3(d00 / det, d10 / det, d20 / det),
+            Vector3(d01 / det, d11 / det, d21 / det),
+            Vector3(d02 / det, d12 / det, d22 / det),
+        );
+
+        Some(result)
     }
 }
 
@@ -232,5 +270,11 @@ mod tests {
             && (&r64_3x3::zero() * u.clone() == r64_3::zero())
             && (&m * r64_3::zero() == r64_3::zero())
     }
+
+    #[quickcheck]
+    fn inversion(m: r64_3x3) -> bool {
+        (r64_3x3::one().inv() == Some(r64_3x3::one()))
+            && (r64_3x3::zero().inv() == None)
+            && (m.inv().is_none() || m.inv().unwrap().inv().unwrap() == m)
     }
 }
