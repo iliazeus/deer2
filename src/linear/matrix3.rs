@@ -28,6 +28,8 @@ pub type isize_3x3 = Matrix3<isize>;
 pub type f32_3x3 = Matrix3<f32>;
 pub type f64_3x3 = Matrix3<f64>;
 
+pub type r64_3x3 = Matrix3<r64>;
+
 impl<T: Num> LinearSpace for Matrix3<T> {
     type Scalar = T;
 }
@@ -176,7 +178,7 @@ impl<T: Num> Mul<Vector3<T>> for &Matrix3<T> {
 }
 
 impl<T: Num> Matrix3<T> {
-    pub fn transpose(&self) -> Self {
+    pub fn tr(&self) -> Self {
         Self(
             Vector3(self.0 .0, self.1 .0, self.2 .1),
             Vector3(self.0 .1, self.1 .1, self.2 .1),
@@ -189,7 +191,9 @@ impl<T: Num> Matrix3<T> {
     }
 
     pub fn from_cols(v0: Vector3<T>, v1: Vector3<T>, v2: Vector3<T>) -> Self {
-        Self(v0, v1, v2).transpose()
+        Self(v0, v1, v2).tr()
+    }
+}
     }
 }
 
@@ -197,9 +201,9 @@ impl<T: Num> Matrix3<T> {
 use quickcheck::Arbitrary;
 
 #[cfg(test)]
-impl Arbitrary for Matrix3<i32> {
+impl Arbitrary for Matrix3<r64> {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        self_from_3!(Vector3::<i32>::arbitrary(g))
+        self_from_3!(Vector3::<r64>::arbitrary(g))
     }
 }
 
@@ -209,23 +213,24 @@ mod tests {
 
     use quickcheck_macros::quickcheck;
 
-    LinearSpace_tests!(i32_3x3);
+    LinearSpace_tests!(Matrix3);
 
     #[quickcheck]
-    fn matrix_multiplication(a: i32_3x3, b: i32_3x3, c: i32_3x3, Small(alpha): Small<i32>) -> bool {
-        (&a * &i32_3x3::one() == a)
-            && (&i32_3x3::one() * &a == a)
-            && (&a * &i32_3x3::zero() == i32_3x3::zero())
-            && (&i32_3x3::zero() * &a == i32_3x3::zero())
+    fn matrix_multiplication(a: r64_3x3, b: r64_3x3, c: r64_3x3, alpha: r64) -> bool {
+        (&a * &r64_3x3::one() == a)
+            && (&r64_3x3::one() * &a == a)
+            && (&a * &r64_3x3::zero() == r64_3x3::zero())
+            && (&r64_3x3::zero() * &a == r64_3x3::zero())
             && (&(a.clone() * alpha) * &b == (&a * &b) * alpha)
             && (&a * &(b.clone() * alpha) == (&a * &b) * alpha)
             && (&(&a * &b) * &c == &a * &(&b * &c))
     }
 
     #[quickcheck]
-    fn vector_multiplication(m: i32_3x3, u: i32_3) -> bool {
-        (&i32_3x3::one() * u.clone() == u)
-            && (&i32_3x3::zero() * u.clone() == i32_3::zero())
-            && (&m * i32_3::zero() == i32_3::zero())
+    fn vector_multiplication(m: r64_3x3, u: r64_3) -> bool {
+        (&r64_3x3::one() * u.clone() == u)
+            && (&r64_3x3::zero() * u.clone() == r64_3::zero())
+            && (&m * r64_3::zero() == r64_3::zero())
+    }
     }
 }

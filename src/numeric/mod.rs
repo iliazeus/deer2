@@ -1,8 +1,5 @@
 mod num;
 pub use num::*;
 
-#[cfg(test)]
-mod small;
-
-#[cfg(test)]
-pub use small::*;
+mod small_ratio;
+pub use small_ratio::*;

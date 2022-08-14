@@ -23,6 +23,8 @@ pub type isize_3 = Vector3<isize>;
 pub type f32_3 = Vector3<f32>;
 pub type f64_3 = Vector3<f64>;
 
+pub type r64_3 = Vector3<r64>;
+
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Vector3<T: Num>(pub T, pub T, pub T);
 
@@ -194,10 +196,9 @@ impl Vector3<f64> {
 use quickcheck::Arbitrary;
 
 #[cfg(test)]
-impl Arbitrary for Vector3<i32> {
+impl Arbitrary for Vector3<r64> {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        // we limit the range to protect from overflow
-        self_from_3!(Small::arbitrary(g).0)
+        self_from_3!(r64::arbitrary(g))
     }
 }
 
@@ -207,12 +208,12 @@ mod tests {
 
     use quickcheck_macros::quickcheck;
 
-    LinearSpace_tests!(i32_3);
+    LinearSpace_tests!(Vector3);
 
     #[quickcheck]
-    fn dot_product(a: i32_3, b: i32_3, Small(alpha): Small<i32>) -> bool {
-        (i32_3::dot(&a, &b) == i32_3::dot(&b, &a))
-            && (i32_3::dot(&a, &(b.clone() * alpha)) == alpha * i32_3::dot(&a, &b))
-            && (i32_3::dot(&a, &i32_3::zero()) == 0)
+    fn dot_product(a: r64_3, b: r64_3, alpha: r64) -> bool {
+        (r64_3::dot(&a, &b) == r64_3::dot(&b, &a))
+            && (r64_3::dot(&a, &(b.clone() * alpha)) == alpha * r64_3::dot(&a, &b))
+            && (r64_3::dot(&a, &r64_3::zero()) == r64::zero())
     }
 }
