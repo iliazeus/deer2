@@ -5,19 +5,13 @@ use crate::numeric::*;
 use super::*;
 
 use std::fmt::Display;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
-
-pub type u8_3 = Vector3<u8>;
-pub type u16_3 = Vector3<u16>;
-pub type u32_3 = Vector3<u32>;
-pub type u64_3 = Vector3<u64>;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 pub type i8_3 = Vector3<i8>;
 pub type i16_3 = Vector3<i16>;
 pub type i32_3 = Vector3<i32>;
 pub type i64_3 = Vector3<i64>;
 
-pub type usize_3 = Vector3<usize>;
 pub type isize_3 = Vector3<isize>;
 
 pub type f32_3 = Vector3<f32>;
@@ -55,6 +49,17 @@ macro_rules! self_from_3 {
 impl<T: Num> Display for Vector3<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[{}, {}, {}]", self.0, self.1, self.2)
+    }
+}
+
+impl<T: Num> Neg for Vector3<T> {
+    type Output = Self;
+    #[inline(always)]
+    fn neg(mut self) -> Self::Output {
+        self.0 = -self.0;
+        self.1 = -self.1;
+        self.2 = -self.2;
+        self
     }
 }
 

@@ -5,24 +5,18 @@ use crate::numeric::*;
 use super::*;
 
 use std::fmt::Display;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// Row-based.
 /// Multiplying a vector and a matrix consumes the vector.
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Matrix3<T: Num>(pub Vector3<T>, pub Vector3<T>, pub Vector3<T>);
 
-pub type u8_3x3 = Matrix3<u8>;
-pub type u16_3x3 = Matrix3<u16>;
-pub type u32_3x3 = Matrix3<u32>;
-pub type u64_3x3 = Matrix3<u64>;
-
 pub type i8_3x3 = Matrix3<i8>;
 pub type i16_3x3 = Matrix3<i16>;
 pub type i32_3x3 = Matrix3<i32>;
 pub type i64_3x3 = Matrix3<i64>;
 
-pub type usize_3x3 = Matrix3<usize>;
 pub type isize_3x3 = Matrix3<isize>;
 
 pub type f32_3x3 = Matrix3<f32>;
@@ -61,6 +55,17 @@ impl<T: Num> Display for Matrix3<T> {
         } else {
             write!(f, "[{},\n {},\n {}]", self.0, self.1, self.2)
         }
+    }
+}
+
+impl<T: Num> Neg for Matrix3<T> {
+    type Output = Self;
+    #[inline(always)]
+    fn neg(mut self) -> Self::Output {
+        self.0 = -self.0;
+        self.1 = -self.1;
+        self.2 = -self.2;
+        self
     }
 }
 

@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::Display;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use super::*;
 
@@ -66,19 +66,20 @@ impl One for SmallRatio64 {
 
 impl PartialOrd for SmallRatio64 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        i64::partial_cmp(
-            &(self.num() * self.den()),
-            &(other.num() * other.den()),
-        )
+        i64::partial_cmp(&(self.num() * self.den()), &(other.num() * other.den()))
     }
 }
 
 impl Ord for SmallRatio64 {
     fn cmp(&self, other: &Self) -> Ordering {
-        i64::cmp(
-            &(self.num() * self.den()),
-            &(other.num() * other.den()),
-        )
+        i64::cmp(&(self.num() * self.den()), &(other.num() * other.den()))
+    }
+}
+
+impl Neg for SmallRatio64 {
+    type Output = SmallRatio64;
+    fn neg(self) -> Self::Output {
+        SmallRatio64(-self.num(), self.den())
     }
 }
 
