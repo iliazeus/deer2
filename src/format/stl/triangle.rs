@@ -37,18 +37,18 @@ impl Triangle for StlTriangle {
     }
 
     #[inline(always)]
-    fn vertex_a(&self) -> &Self::Vertex {
-        &self.a
+    fn vertex_a(&self) -> Self::Vertex {
+        self.a.clone()
     }
 
     #[inline(always)]
-    fn vertex_b(&self) -> &Self::Vertex {
-        &self.b
+    fn vertex_b(&self) -> Self::Vertex {
+        self.b.clone()
     }
 
     #[inline(always)]
-    fn vertex_c(&self) -> &Self::Vertex {
-        &self.c
+    fn vertex_c(&self) -> Self::Vertex {
+        self.c.clone()
     }
 
     #[inline(always)]

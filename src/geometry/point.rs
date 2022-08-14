@@ -7,7 +7,7 @@ pub trait Point: Geometry {
     fn from_coords(coords: Vector3<Self::Num>) -> Self;
     fn into_coords(self) -> Vector3<Self::Num>;
 
-    fn coords(&self) -> &Vector3<Self::Num>;
+    fn coords(&self) -> Vector3<Self::Num>;
 }
 
 impl<T: Num> Point for Vector3<T> {
@@ -22,7 +22,7 @@ impl<T: Num> Point for Vector3<T> {
     }
 
     #[inline(always)]
-    fn coords(&self) -> &Vector3<Self::Num> {
-        self
+    fn coords(&self) -> Vector3<Self::Num> {
+        self.clone()
     }
 }
