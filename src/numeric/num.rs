@@ -1,8 +1,9 @@
-use std::fmt::Display;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign, Neg};
+use std::fmt::{Debug, Display};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 pub trait Num:
     Copy
+    + Debug
     + Display
     + PartialEq<Self>
     + PartialOrd<Self>

@@ -22,6 +22,12 @@ pub type r64_3 = Vector3<r64>;
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Vector3<T: Num>(pub T, pub T, pub T);
 
+impl<T: Num> Vector3<T> {
+    pub fn new(x: T, y: T, z: T) -> Self {
+        Self(x, y, z)
+    }
+}
+
 impl<T: Num> LinearSpace for Vector3<T> {
     type Scalar = T;
 }
@@ -220,5 +226,10 @@ mod tests {
         (r64_3::dot(&a, &b) == r64_3::dot(&b, &a))
             && (r64_3::dot(&a, &(b.clone() * alpha)) == alpha * r64_3::dot(&a, &b))
             && (r64_3::dot(&a, &r64_3::zero()) == r64::zero())
+    }
+
+    #[quickcheck]
+    fn cross_product(a: r64_3, b: r64_3) -> bool {
+        r64_3::dot(&r64_3::cross(&a, &b), &a) == r64::zero()
     }
 }
