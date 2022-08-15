@@ -1,4 +1,7 @@
+#![feature(saturating_int_impl)]
+
 pub mod affine;
+pub mod bitmap;
 pub mod cast;
 pub mod data;
 pub mod format;
