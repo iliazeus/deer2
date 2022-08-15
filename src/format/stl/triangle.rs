@@ -21,10 +21,8 @@ impl Geometry for StlTriangle {
 }
 
 impl Triangle for StlTriangle {
-    type Vertex = f32_3;
-
     #[inline(always)]
-    fn from_vertices(a: Self::Vertex, b: Self::Vertex, c: Self::Vertex) -> Self {
+    fn from_vertices(a: f32_3, b: f32_3, c: f32_3) -> Self {
         let n = f32_3::cross(&(b.clone() - &a), &(c.clone() - &a));
         let attr = 0u16;
 
@@ -32,22 +30,22 @@ impl Triangle for StlTriangle {
     }
 
     #[inline(always)]
-    fn into_vertices(self) -> (Self::Vertex, Self::Vertex, Self::Vertex) {
+    fn into_vertices(self) -> (f32_3, f32_3, f32_3) {
         (self.a, self.b, self.c)
     }
 
     #[inline(always)]
-    fn vertex_a(&self) -> Self::Vertex {
+    fn vertex_a(&self) -> f32_3 {
         self.a.clone()
     }
 
     #[inline(always)]
-    fn vertex_b(&self) -> Self::Vertex {
+    fn vertex_b(&self) -> f32_3 {
         self.b.clone()
     }
 
     #[inline(always)]
-    fn vertex_c(&self) -> Self::Vertex {
+    fn vertex_c(&self) -> f32_3 {
         self.c.clone()
     }
 

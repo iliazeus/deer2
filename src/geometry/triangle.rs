@@ -4,14 +4,12 @@ use super::*;
 
 /// Vertices are ordered counter-clockwise (A -> B -> C)
 pub trait Triangle: Geometry {
-    type Vertex: Point<Num = Self::Num>;
+    fn from_vertices(a: Vector3<Self::Num>, b: Vector3<Self::Num>, c: Vector3<Self::Num>) -> Self;
+    fn into_vertices(self) -> (Vector3<Self::Num>, Vector3<Self::Num>, Vector3<Self::Num>);
 
-    fn from_vertices(a: Self::Vertex, b: Self::Vertex, c: Self::Vertex) -> Self;
-    fn into_vertices(self) -> (Self::Vertex, Self::Vertex, Self::Vertex);
-
-    fn vertex_a(&self) -> Self::Vertex;
-    fn vertex_b(&self) -> Self::Vertex;
-    fn vertex_c(&self) -> Self::Vertex;
+    fn vertex_a(&self) -> Vector3<Self::Num>;
+    fn vertex_b(&self) -> Vector3<Self::Num>;
+    fn vertex_c(&self) -> Vector3<Self::Num>;
 
     fn normal(&self) -> Vector3<Self::Num>;
 }

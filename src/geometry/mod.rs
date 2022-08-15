@@ -1,7 +1,7 @@
 mod geometry;
-mod point;
+mod ray;
 mod triangle;
 
 pub use geometry::*;
-pub use point::*;
+pub use ray::*;
 pub use triangle::*;
