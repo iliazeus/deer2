@@ -24,6 +24,15 @@ impl Geometry for StlModel {
     }
 }
 
+impl<'a> TriangleMesh<'a> for StlModel {
+    type Triangle = StlTriangle;
+    type Triangles = std::slice::Iter<'a, StlTriangle>;
+
+    fn triangles(&'a self) -> Self::Triangles {
+        self.triangles.iter()
+    }
+}
+
 impl StlModel {
     pub fn read_from<R: Read>(reader: &mut R) -> Result<Self, io::Error> {
         let mut header = String::with_capacity(80);

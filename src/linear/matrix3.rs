@@ -195,8 +195,8 @@ impl<T: Num> Matrix3<T> {
         Self(v0, v1, v2)
     }
 
-    pub fn from_cols(v0: Vector3<T>, v1: Vector3<T>, v2: Vector3<T>) -> Self {
-        Self(v0, v1, v2).tr()
+    pub fn from_cols(e0: Vector3<T>, e1: Vector3<T>, e2: Vector3<T>) -> Self {
+        Self(e0, e1, e2).tr()
     }
 }
 
