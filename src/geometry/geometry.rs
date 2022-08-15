@@ -1,12 +1,10 @@
-use crate::linear::*;
+use crate::affine::*;
 use crate::numeric::*;
 
 use std::fmt::Debug;
 
-pub trait Geometry: Debug {
+pub trait Geometry: Debug + Clone {
     type Num: Num;
-}
 
-impl<T: Num> Geometry for Vector3<T> {
-    type Num = T;
+    fn apply(&mut self, xform: &Transform3<Self::Num>);
 }

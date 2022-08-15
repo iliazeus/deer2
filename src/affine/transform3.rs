@@ -6,7 +6,7 @@ use crate::numeric::*;
 /// An invertible affine transform.
 pub struct Transform3<T: Num> {
     matrix: Matrix3<T>,
-    translation: Vector3<T>,
+    origin: Vector3<T>,
 }
 
 pub type i8_xform3 = Transform3<i8>;
@@ -22,32 +22,32 @@ pub type f64_xform3 = Transform3<f64>;
 pub type r64_xform3 = Transform3<r64>;
 
 impl<T: Num> Transform3<T> {
-    pub fn new(matrix: Matrix3<T>, translation: Vector3<T>) -> Option<Self> {
+    #[inline(always)]
+    pub fn new(matrix: Matrix3<T>, origin: Vector3<T>) -> Option<Self> {
         if matrix.det() == T::zero() {
             None
         } else {
-            Some(Self {
-                matrix,
-                translation,
-            })
+            Some(Self { matrix, origin })
         }
     }
 
-    pub fn transform_vec(&self, vec: Vector3<T>) -> Vector3<T> {
-        &self.matrix * vec
+    #[inline(always)]
+    pub fn apply_to_vector(&self, vector: &mut Vector3<T>) {
+        *vector = &self.matrix * vector.clone();
     }
 
-    pub fn transform_point(&self, point: Vector3<T>) -> Vector3<T> {
-        &self.matrix * point + &self.translation
+    #[inline(always)]
+    pub fn apply_to_point(&self, point: &mut Vector3<T>) {
+        *point = &self.matrix * point.clone() + &self.origin;
     }
 
     pub fn invert(&self) -> Self {
         let matrix = self.matrix.inv().unwrap();
-        let translation = &matrix * (-self.translation.clone());
+        let translation = &matrix * (-self.origin.clone());
 
         Self {
             matrix,
-            translation,
+            origin: translation,
         }
     }
 }

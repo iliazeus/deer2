@@ -1,3 +1,4 @@
+use crate::affine::*;
 use crate::geometry::*;
 
 use std::io;
@@ -15,6 +16,12 @@ pub struct StlModel {
 
 impl Geometry for StlModel {
     type Num = f32;
+
+    fn apply(&mut self, xform: &f32_xform3) {
+        for triangle in self.triangles.iter_mut() {
+            triangle.apply(xform);
+        }
+    }
 }
 
 impl StlModel {

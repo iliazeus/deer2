@@ -1,3 +1,4 @@
+use crate::affine::*;
 use crate::geometry::*;
 use crate::linear::*;
 use crate::numeric::Zero;
@@ -18,6 +19,14 @@ pub struct StlTriangle {
 
 impl Geometry for StlTriangle {
     type Num = f32;
+
+    fn apply(&mut self, xform: &f32_xform3) {
+        xform.apply_to_vector(&mut self.n);
+
+        xform.apply_to_point(&mut self.a);
+        xform.apply_to_point(&mut self.b);
+        xform.apply_to_point(&mut self.c);
+    }
 }
 
 impl Triangle for StlTriangle {
