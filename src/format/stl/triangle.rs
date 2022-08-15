@@ -20,12 +20,14 @@ pub struct StlTriangle {
 impl Geometry for StlTriangle {
     type Num = f32;
 
-    fn apply(&mut self, xform: &f32_xform3) {
-        xform.apply_to_vector(&mut self.n);
+    fn apply(mut self, xform: &Transform3<f32>) -> Self {
+        self.n = xform.map_vector(self.n);
 
-        xform.apply_to_point(&mut self.a);
-        xform.apply_to_point(&mut self.b);
-        xform.apply_to_point(&mut self.c);
+        self.a = xform.map_point(self.a);
+        self.b = xform.map_point(self.b);
+        self.c = xform.map_point(self.c);
+
+        self
     }
 }
 

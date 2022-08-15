@@ -32,13 +32,13 @@ impl<T: Num> Transform3<T> {
     }
 
     #[inline(always)]
-    pub fn apply_to_vector(&self, vector: &mut Vector3<T>) {
-        *vector = &self.matrix * vector.clone();
+    pub fn map_point(&self, point: Vector3<T>) -> Vector3<T> {
+        &self.matrix * point + &self.origin
     }
 
     #[inline(always)]
-    pub fn apply_to_point(&self, point: &mut Vector3<T>) {
-        *point = &self.matrix * point.clone() + &self.origin;
+    pub fn map_vector(&self, vector: Vector3<T>) -> Vector3<T> {
+        &self.matrix * vector
     }
 
     pub fn invert(&self) -> Self {

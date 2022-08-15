@@ -17,10 +17,9 @@ pub struct StlModel {
 impl Geometry for StlModel {
     type Num = f32;
 
-    fn apply(&mut self, xform: &f32_xform3) {
-        for triangle in self.triangles.iter_mut() {
-            triangle.apply(xform);
-        }
+    fn apply(mut self, xform: &Transform3<f32>) -> Self {
+        self.triangles = self.triangles.into_iter().map(|t| t.apply(xform)).collect();
+        self
     }
 }
 

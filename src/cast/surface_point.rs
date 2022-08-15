@@ -12,8 +12,9 @@ pub struct SurfacePoint<T: Num> {
 impl<T: Num> Geometry for SurfacePoint<T> {
     type Num = T;
 
-    fn apply(&mut self, xform: &Transform3<T>) {
-        xform.apply_to_point(&mut self.point);
-        xform.apply_to_vector(&mut self.normal);
+    fn apply(mut self, xform: &Transform3<T>) -> Self {
+        self.point = xform.map_point(self.point);
+        self.normal = xform.map_vector(self.normal);
+        self
     }
 }

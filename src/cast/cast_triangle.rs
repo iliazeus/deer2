@@ -19,11 +19,7 @@ where
 
     let xform = Transform3::new(Matrix3::from_cols(e0, e1, e2), origin)?;
 
-    let mut xray = ray.clone();
-    xray.apply(&xform);
-
-    let xsrc = ray.source();
-    let xdir = ray.direction();
+    let (xsrc, xdir) = ray.clone().apply(&xform).into_source_and_direction();
 
     if xsrc.z() == N::zero() {
         return Some(SurfacePoint {
@@ -45,11 +41,10 @@ where
 
     let inv_xform = xform.invert();
 
-    let mut point = Vector3::new(xpoint_x, xpoint_y, N::zero());
-    inv_xform.apply_to_point(&mut point);
+    let point = Vector3::new(xpoint_x, xpoint_y, N::zero());
 
     Some(SurfacePoint {
-        point,
+        point: inv_xform.map_point(point),
         normal: triangle.normal(),
     })
 }
