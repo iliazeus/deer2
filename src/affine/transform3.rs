@@ -4,6 +4,7 @@ use crate::linear::*;
 use crate::numeric::*;
 
 /// An invertible affine transform.
+#[derive(Debug, Clone)]
 pub struct Transform3<T: Num> {
     matrix: Matrix3<T>,
     origin: Vector3<T>,
@@ -23,12 +24,8 @@ pub type r64_xform3 = Transform3<r64>;
 
 impl<T: Num> Transform3<T> {
     #[inline(always)]
-    pub fn new(matrix: Matrix3<T>, origin: Vector3<T>) -> Option<Self> {
-        if matrix.det() == T::zero() {
-            None
-        } else {
-            Some(Self { matrix, origin })
-        }
+    pub fn new(matrix: Matrix3<T>, origin: Vector3<T>) -> Self {
+        Self { matrix, origin }
     }
 
     #[inline(always)]
@@ -41,13 +38,13 @@ impl<T: Num> Transform3<T> {
         &self.matrix * vector
     }
 
-    pub fn invert(&self) -> Self {
-        let matrix = self.matrix.inv().unwrap();
+    pub fn invert(&self) -> Option<Self> {
+        let matrix = self.matrix.inv()?;
         let translation = &matrix * (-self.origin.clone());
 
-        Self {
+        Some(Self {
             matrix,
             origin: translation,
-        }
+        })
     }
 }
