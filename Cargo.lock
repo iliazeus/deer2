@@ -30,6 +30,7 @@ dependencies = [
  "byteorder",
  "quickcheck",
  "quickcheck_macros",
+ "rand",
 ]
 
 [[package]]
