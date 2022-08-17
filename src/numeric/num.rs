@@ -19,6 +19,9 @@ pub trait Num:
     + Zero
     + One
 {
+    fn sqrt(self) -> Self;
+    fn sin(self) -> Self;
+    fn cos(self) -> Self;
 }
 
 pub trait Zero {
@@ -29,7 +32,7 @@ pub trait One {
     fn one() -> Self;
 }
 
-macro_rules! impl_zero {
+macro_rules! impl_int {
     ($T:ident) => {
         impl Zero for $T {
             #[inline(always)]
@@ -37,46 +40,74 @@ macro_rules! impl_zero {
                 0 as $T
             }
         }
-    };
-}
 
-macro_rules! impl_one {
-    ($T:ident) => {
         impl One for $T {
             #[inline(always)]
             fn one() -> Self {
                 1 as $T
             }
         }
+
+        impl Num for $T {
+            #[inline(always)]
+            fn sqrt(self) -> Self {
+                unimplemented!()
+            }
+
+            #[inline(always)]
+            fn sin(self) -> Self {
+                unimplemented!()
+            }
+
+            #[inline(always)]
+            fn cos(self) -> Self {
+                unimplemented!()
+            }
+        }
     };
 }
 
-impl_zero!(i8);
-impl_zero!(i16);
-impl_zero!(i32);
-impl_zero!(i64);
+macro_rules! impl_float {
+    ($T:ident) => {
+        impl Zero for $T {
+            #[inline(always)]
+            fn zero() -> Self {
+                0 as $T
+            }
+        }
 
-impl_zero!(isize);
+        impl One for $T {
+            #[inline(always)]
+            fn one() -> Self {
+                1 as $T
+            }
+        }
 
-impl_zero!(f32);
-impl_zero!(f64);
+        impl Num for $T {
+            #[inline(always)]
+            fn sqrt(self) -> Self {
+                $T::sqrt(self)
+            }
 
-impl_one!(i8);
-impl_one!(i16);
-impl_one!(i32);
-impl_one!(i64);
+            #[inline(always)]
+            fn sin(self) -> Self {
+                $T::sin(self)
+            }
 
-impl_one!(isize);
+            #[inline(always)]
+            fn cos(self) -> Self {
+                $T::cos(self)
+            }
+        }
+    };
+}
 
-impl_one!(f32);
-impl_one!(f64);
+impl_int!(i8);
+impl_int!(i16);
+impl_int!(i32);
+impl_int!(i64);
 
-impl Num for i8 {}
-impl Num for i16 {}
-impl Num for i32 {}
-impl Num for i64 {}
+impl_int!(isize);
 
-impl Num for isize {}
-
-impl Num for f32 {}
-impl Num for f64 {}
+impl_float!(f32);
+impl_float!(f64);

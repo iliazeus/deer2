@@ -187,6 +187,11 @@ impl<T: Num> Vector3<T> {
     }
 
     #[inline(always)]
+    pub fn abs(&self) -> T {
+        self.abs2().sqrt()
+    }
+
+    #[inline(always)]
     pub fn dot(a: &Self, b: &Self) -> T {
         a.0 * b.0 + a.1 * b.1 + a.2 * b.2
     }
@@ -198,20 +203,6 @@ impl<T: Num> Vector3<T> {
             a.2 * b.0 - a.0 * b.2,
             a.0 * b.1 - a.1 * b.0,
         )
-    }
-}
-
-impl Vector3<f32> {
-    #[inline(always)]
-    pub fn abs(&self) -> f32 {
-        self.abs2().sqrt()
-    }
-}
-
-impl Vector3<f64> {
-    #[inline(always)]
-    pub fn abs(&self) -> f64 {
-        self.abs2().sqrt()
     }
 }
 

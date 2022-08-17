@@ -1,7 +1,7 @@
 use crate::affine::*;
 use crate::geometry::*;
 use crate::linear::*;
-use crate::numeric::Zero;
+use crate::numeric::*;
 
 use std::io;
 use std::io::{Read, Write};

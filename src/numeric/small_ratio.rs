@@ -28,7 +28,19 @@ impl SmallRatio64 {
     }
 }
 
-impl Num for SmallRatio64 {}
+impl Num for SmallRatio64 {
+    fn sqrt(self) -> Self {
+        unimplemented!()
+    }
+
+    fn sin(self) -> Self {
+        unimplemented!()
+    }
+
+    fn cos(self) -> Self {
+        unimplemented!()
+    }
+}
 
 #[cfg(test)]
 use quickcheck::Arbitrary;
