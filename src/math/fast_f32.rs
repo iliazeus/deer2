@@ -19,6 +19,11 @@ impl Display for ff32 {
 
 impl Num for ff32 {
     #[inline(always)]
+    fn pi() -> Self {
+        ff32(f32::pi())
+    }
+
+    #[inline(always)]
     fn from_usize(x: usize) -> Self {
         ff32(x as f32)
     }
@@ -142,9 +147,21 @@ mod tests {
         let mut accum = N::zero();
 
         for i in 0..SIZE {
-            let v1 = Vector3(N::from_usize(i + 0), N::from_usize(i + 1), N::from_usize(i + 2));
-            let v2 = Vector3(N::from_usize(i + 3), N::from_usize(i + 4), N::from_usize(i + 5));
-            let v3 = Vector3(N::from_usize(i + 6), N::from_usize(i + 7), N::from_usize(i + 8));
+            let v1 = Vector3(
+                N::from_usize(i + 0),
+                N::from_usize(i + 1),
+                N::from_usize(i + 2),
+            );
+            let v2 = Vector3(
+                N::from_usize(i + 3),
+                N::from_usize(i + 4),
+                N::from_usize(i + 5),
+            );
+            let v3 = Vector3(
+                N::from_usize(i + 6),
+                N::from_usize(i + 7),
+                N::from_usize(i + 8),
+            );
 
             let m = Matrix3(v1, v2, v3);
             accum += (m * m).det();

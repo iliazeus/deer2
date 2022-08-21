@@ -19,6 +19,7 @@ pub trait Num:
     + Zero
     + One
 {
+    fn pi() -> Self;
     fn from_usize(x: usize) -> Self;
     fn abs(self) -> Self;
     fn sqrt(self) -> Self;
@@ -51,6 +52,11 @@ macro_rules! impl_float {
         }
 
         impl Num for $T {
+            #[inline(always)]
+            fn pi() -> Self {
+                std::$T::consts::PI
+            }
+
             #[inline(always)]
             fn from_usize(x: usize) -> Self {
                 x as Self

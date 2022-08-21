@@ -168,6 +168,11 @@ impl<T: Num> Vector3<T> {
     }
 
     #[inline(always)]
+    pub fn norm(self) -> Self {
+        self / self.abs()
+    }
+
+    #[inline(always)]
     pub fn dot(a: Self, b: Self) -> T {
         a.0 * b.0 + a.1 * b.1 + a.2 * b.2
     }

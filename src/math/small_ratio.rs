@@ -29,6 +29,10 @@ impl SmallRatio64 {
 }
 
 impl Num for SmallRatio64 {
+    fn pi() -> Self {
+        unimplemented!()
+    }
+
     fn from_usize(x: usize) -> Self {
         Self(x as i64, 1)
     }
