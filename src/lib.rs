@@ -4,9 +4,9 @@
 pub mod affine;
 pub mod bitmap;
 pub mod data;
-pub mod format;
+pub mod formats;
 pub mod geometry;
 pub mod linear;
+pub mod materials;
 pub mod numeric;
-pub mod random;
-pub mod ray;
+pub mod tracing;

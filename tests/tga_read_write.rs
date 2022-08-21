@@ -1,5 +1,5 @@
 use deer2::data::tga::*;
-use deer2::format::tga::*;
+use deer2::formats::tga::*;
 
 use std::io::Cursor;
 

@@ -1,5 +1,5 @@
 use deer2::data::stl::*;
-use deer2::format::stl::*;
+use deer2::formats::stl::*;
 
 use std::io::Cursor;
 

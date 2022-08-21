@@ -29,6 +29,10 @@ impl SmallRatio64 {
 }
 
 impl Num for SmallRatio64 {
+    fn abs(self) -> Self {
+        Self(self.0.abs(), self.1)
+    }
+
     fn sqrt(self) -> Self {
         unimplemented!()
     }

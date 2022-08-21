@@ -17,6 +17,11 @@ impl Display for ff32 {
 
 impl Num for ff32 {
     #[inline(always)]
+    fn abs(self) -> ff32 {
+        ff32(self.0.abs())
+    }
+
+    #[inline(always)]
     fn sqrt(self) -> ff32 {
         ff32(self.0.sqrt())
     }

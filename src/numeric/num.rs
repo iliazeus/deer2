@@ -19,6 +19,7 @@ pub trait Num:
     + Zero
     + One
 {
+    fn abs(self) -> Self;
     fn sqrt(self) -> Self;
     fn sin(self) -> Self;
     fn cos(self) -> Self;
@@ -30,41 +31,6 @@ pub trait Zero {
 
 pub trait One {
     fn one() -> Self;
-}
-
-macro_rules! impl_int {
-    ($T:ident) => {
-        impl Zero for $T {
-            #[inline(always)]
-            fn zero() -> Self {
-                0 as $T
-            }
-        }
-
-        impl One for $T {
-            #[inline(always)]
-            fn one() -> Self {
-                1 as $T
-            }
-        }
-
-        impl Num for $T {
-            #[inline(always)]
-            fn sqrt(self) -> Self {
-                unimplemented!()
-            }
-
-            #[inline(always)]
-            fn sin(self) -> Self {
-                unimplemented!()
-            }
-
-            #[inline(always)]
-            fn cos(self) -> Self {
-                unimplemented!()
-            }
-        }
-    };
 }
 
 macro_rules! impl_float {
@@ -85,6 +51,11 @@ macro_rules! impl_float {
 
         impl Num for $T {
             #[inline(always)]
+            fn abs(self) -> Self {
+                $T::abs(self)
+            }
+
+            #[inline(always)]
             fn sqrt(self) -> Self {
                 $T::sqrt(self)
             }
@@ -101,13 +72,6 @@ macro_rules! impl_float {
         }
     };
 }
-
-impl_int!(i8);
-impl_int!(i16);
-impl_int!(i32);
-impl_int!(i64);
-
-impl_int!(isize);
 
 impl_float!(f32);
 impl_float!(f64);
