@@ -34,7 +34,7 @@ impl Geometry for StlTriangle {
 impl Triangle for StlTriangle {
     #[inline(always)]
     fn from_vertices(a: f32_3, b: f32_3, c: f32_3) -> Self {
-        let n = f32_3::cross(&(b.clone() - &a), &(c.clone() - &a));
+        let n = f32_3::cross(b - a, c - a);
         let attr = 0u16;
 
         StlTriangle { n, a, b, c, attr }
@@ -47,25 +47,25 @@ impl Triangle for StlTriangle {
 
     #[inline(always)]
     fn vertex_a(&self) -> f32_3 {
-        self.a.clone()
+        self.a
     }
 
     #[inline(always)]
     fn vertex_b(&self) -> f32_3 {
-        self.b.clone()
+        self.b
     }
 
     #[inline(always)]
     fn vertex_c(&self) -> f32_3 {
-        self.c.clone()
+        self.c
     }
 
     #[inline(always)]
     fn normal(&self) -> Vector3<Self::Num> {
         if self.n != f32_3::zero() {
-            self.n.clone()
+            self.n
         } else {
-            f32_3::cross(&(self.b.clone() - &self.a), &(self.c.clone() - &self.a))
+            f32_3::cross(self.b - self.a, self.c - self.a)
         }
     }
 }

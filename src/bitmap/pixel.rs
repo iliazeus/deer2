@@ -2,12 +2,12 @@
 
 use std::fmt::Debug;
 
-pub trait Pixel: Debug + Clone {
+pub trait Pixel: Debug + Clone + Copy {
     fn black() -> Self;
     fn white() -> Self;
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct u8_rgb {
     pub r: u8,
     pub g: u8,
@@ -32,7 +32,7 @@ impl Pixel for u8_rgb {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct f32_rgb {
     pub r: f32,
     pub g: f32,

@@ -53,29 +53,27 @@ where
                     inv_uv_xform,
                     meta,
                 }) => {
-                    let fwd_ray = fwd_uv_ray.clone().apply(&inv_uv_xform);
-                    let bwd_ray = self.light_source.cast_ray_from(fwd_ray.origin.clone(), rng);
-                    let bwd_uv_ray = bwd_ray.clone().apply(&uv_xform);
+                    let fwd_ray = fwd_uv_ray.apply(&inv_uv_xform);
+                    let bwd_ray = self.light_source.cast_ray_from(fwd_ray.origin, rng);
+                    let bwd_uv_ray = bwd_ray.apply(&uv_xform);
 
-                    if let Some(refl_light) = self.material.query_reflection(
-                        bwd_uv_ray,
-                        fwd_uv_ray.clone(),
-                        light,
-                        rng,
-                        &meta,
-                    ) {
+                    if let Some(refl_light) = self
+                        .material
+                        .query_reflection(bwd_uv_ray, fwd_uv_ray, light, rng, &meta)
+                    {
                         let exposure = self.light_source.get_exposure(fwd_ray, refl_light, rng);
                         result += N::one() / exposure;
                     }
 
-                    if let Some((refl_uv_ray, refl_light)) = self
+                    match self
                         .material
                         .trace_reflection(fwd_uv_ray, light, rng, &meta)
                     {
-                        ray = refl_uv_ray.apply(&inv_uv_xform);
-                        light = refl_light;
-                    } else {
-                        break;
+                        None => break,
+                        Some((refl_uv_ray, refl_light)) => {
+                            ray = refl_uv_ray.apply(&inv_uv_xform);
+                            light = refl_light;
+                        }
                     }
                 }
             }

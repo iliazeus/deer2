@@ -3,7 +3,7 @@ use crate::geometry::*;
 use crate::linear::*;
 use crate::numeric::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Ray<N: Num> {
     pub origin: Vector3<N>,
     pub direction: Vector3<N>,

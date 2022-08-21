@@ -37,15 +37,15 @@ impl<N: Num, S: Spectrum<N>> Material for SimplePbMaterial<N, S> {
         let n = Vector3(h0 - h1, h0 - h2, N::one());
 
         if rng.random() > self.shininess {
-            let dotn = Vector3::dot(&fwd_uv_ray.direction, &n);
+            let dotn = Vector3::dot(fwd_uv_ray.direction, n);
             light.intensity *= dotn.abs();
         }
 
-        let dist = fwd_uv_ray.direction.clone() - &n;
+        let dist = fwd_uv_ray.direction - n;
 
         let bwd_uv_ray = Ray {
             origin: fwd_uv_ray.origin,
-            direction: fwd_uv_ray.direction - &dist - &dist,
+            direction: fwd_uv_ray.direction - dist - dist,
         };
 
         Some((bwd_uv_ray, light))
@@ -72,7 +72,7 @@ impl<N: Num, S: Spectrum<N>> Material for SimplePbMaterial<N, S> {
 
         let n = Vector3(h0 - h1, h0 - h2, N::one());
 
-        let dotn = Vector3::dot(&bwd_uv_ray.direction, &n);
+        let dotn = Vector3::dot(bwd_uv_ray.direction, n);
         light.intensity *= dotn.abs();
 
         Some(light)

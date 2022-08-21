@@ -1,4 +1,7 @@
 #[macro_use]
+mod util_macros;
+
+#[macro_use]
 mod linear_space;
 mod matrix3;
 mod vector3;

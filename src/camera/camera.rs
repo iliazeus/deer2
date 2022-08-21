@@ -40,7 +40,7 @@ impl<N: Num> Camera<N> {
         let world_pixel = self.inv_screen_xform.map_point(screen_pixel);
 
         Ray {
-            origin: self.focus_point.clone(),
+            origin: self.focus_point,
             direction: world_pixel,
         }
     }

@@ -22,18 +22,15 @@ where
 
         let surface_points = triangle_mesh
             .triangles()
-            .flat_map(|t| NaiveCastTriangle(t).cast_ray(bwd_ray.clone()).into_iter());
+            .flat_map(|t| NaiveCastTriangle(t).cast_ray(bwd_ray).into_iter());
 
         let mut closest_surface_point: Option<SurfacePoint<N, ()>> = None;
         let mut closest_surface_point_dist: Option<N> = None;
 
         for surface_point in surface_points {
-            let fwd_world_ray = surface_point
-                .fwd_uv_ray
-                .clone()
-                .apply(&surface_point.inv_uv_xform);
+            let fwd_world_ray = surface_point.fwd_uv_ray.apply(&surface_point.inv_uv_xform);
 
-            let surface_point_dist = (fwd_world_ray.origin - &bwd_ray.origin).abs2();
+            let surface_point_dist = (fwd_world_ray.origin - bwd_ray.origin).abs2();
 
             if let Some(d) = closest_surface_point_dist && d <= surface_point_dist {
                 continue;
@@ -62,8 +59,8 @@ where
 
         let uv_xform = Transform3::new(
             Matrix3::from_cols(
-                triangle.vertex_b() - &triangle.vertex_a(),
-                triangle.vertex_c() - &triangle.vertex_a(),
+                triangle.vertex_b() - triangle.vertex_a(),
+                triangle.vertex_c() - triangle.vertex_a(),
                 triangle.normal(),
             ),
             triangle.vertex_a(),
@@ -87,7 +84,7 @@ where
         let inv_uv_xform = uv_xform.invert()?;
 
         let fwd_uv_ray = Ray {
-            origin: uv_ray.origin + &(uv_ray.direction.clone() * alpha),
+            origin: uv_ray.origin + (uv_ray.direction * alpha),
             direction: -uv_ray.direction,
         };
 

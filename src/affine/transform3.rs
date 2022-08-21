@@ -30,17 +30,17 @@ impl<T: Num> Transform3<T> {
 
     #[inline(always)]
     pub fn map_point(&self, point: Vector3<T>) -> Vector3<T> {
-        &self.matrix * point + &self.origin
+        self.matrix * point + self.origin
     }
 
     #[inline(always)]
     pub fn map_vector(&self, vector: Vector3<T>) -> Vector3<T> {
-        &self.matrix * vector
+        self.matrix * vector
     }
 
     pub fn invert(&self) -> Option<Self> {
         let matrix = self.matrix.inv()?;
-        let translation = &matrix * (-self.origin.clone());
+        let translation = matrix * (-self.origin);
 
         Some(Self {
             matrix,
@@ -50,8 +50,8 @@ impl<T: Num> Transform3<T> {
 
     /// First apply `self`, then apply `other`.
     pub fn chain(mut self, other: &Self) -> Self {
-        self.origin = &other.matrix * self.origin + &other.origin;
-        self.matrix = &other.matrix * &self.matrix;
+        self.origin = other.matrix * self.origin + other.origin;
+        self.matrix = other.matrix * self.matrix;
         self
     }
 }

@@ -8,8 +8,7 @@ use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// Row-based.
-/// Multiplying a vector and a matrix consumes the vector.
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Matrix3<T: Num>(pub Vector3<T>, pub Vector3<T>, pub Vector3<T>);
 
 pub type i8_3x3 = Matrix3<i8>;
@@ -26,26 +25,6 @@ pub type r64_3x3 = Matrix3<r64>;
 
 impl<T: Num> LinearSpace for Matrix3<T> {
     type Scalar = T;
-}
-
-macro_rules! do_3 {
-    ($lhs:ident.i $op:tt $rhs:ident) => {
-        $lhs.0 $op $rhs;
-        $lhs.1 $op $rhs;
-        $lhs.2 $op $rhs;
-    };
-
-    ($lhs:ident.i $op:tt &$rhs:ident.i) => {
-        $lhs.0 $op &$rhs.0;
-        $lhs.1 $op &$rhs.1;
-        $lhs.2 $op &$rhs.2;
-    };
-}
-
-macro_rules! self_from_3 {
-    ($arg:expr) => {
-        Self($arg, $arg, $arg)
-    };
 }
 
 impl<T: Num> Display for Matrix3<T> {
@@ -69,35 +48,33 @@ impl<T: Num> Neg for Matrix3<T> {
     }
 }
 
-impl<T: Num> Add<&Self> for Matrix3<T> {
+impl<T: Num> Add<Self> for Matrix3<T> {
     type Output = Self;
     #[inline(always)]
-    fn add(mut self, rhs: &Self) -> Self {
-        do_3!(self.i += &rhs.i);
-        self
+    fn add(self, rhs: Self) -> Self {
+        self_from_3!(self.i + rhs.i)
     }
 }
 
-impl<T: Num> Sub<&Self> for Matrix3<T> {
+impl<T: Num> Sub<Self> for Matrix3<T> {
     type Output = Self;
     #[inline(always)]
-    fn sub(mut self, rhs: &Self) -> Self {
-        do_3!(self.i -= &rhs.i);
-        self
+    fn sub(self, rhs: Self) -> Self {
+        self_from_3!(self.i - rhs.i)
     }
 }
 
-impl<T: Num> AddAssign<&Self> for Matrix3<T> {
+impl<T: Num> AddAssign<Self> for Matrix3<T> {
     #[inline(always)]
-    fn add_assign(&mut self, rhs: &Self) {
-        do_3!(self.i += &rhs.i);
+    fn add_assign(&mut self, rhs: Self) {
+        do_3!(self.i += rhs.i);
     }
 }
 
-impl<T: Num> SubAssign<&Self> for Matrix3<T> {
+impl<T: Num> SubAssign<Self> for Matrix3<T> {
     #[inline(always)]
-    fn sub_assign(&mut self, rhs: &Self) {
-        do_3!(self.i -= &rhs.i);
+    fn sub_assign(&mut self, rhs: Self) {
+        do_3!(self.i -= rhs.i);
     }
 }
 
@@ -147,9 +124,9 @@ impl<T: Num> One for Matrix3<T> {
     }
 }
 
-impl<T: Num> Mul<&Matrix3<T>> for &Matrix3<T> {
+impl<T: Num> Mul<Matrix3<T>> for Matrix3<T> {
     type Output = Matrix3<T>;
-    fn mul(self, rhs: &Matrix3<T>) -> Matrix3<T> {
+    fn mul(self, rhs: Matrix3<T>) -> Matrix3<T> {
         macro_rules! mul {
             ($i:tt, $j:tt) => {
                 (self.$i.0 * rhs.0.$j + self.$i.1 * rhs.1.$j + self.$i.2 * rhs.2.$j)
@@ -164,20 +141,20 @@ impl<T: Num> Mul<&Matrix3<T>> for &Matrix3<T> {
     }
 }
 
-impl<T: Num> MulAssign<&Self> for Matrix3<T> {
-    fn mul_assign(&mut self, rhs: &Self) {
-        *self = &*self * rhs;
+impl<T: Num> MulAssign<Self> for Matrix3<T> {
+    fn mul_assign(&mut self, rhs: Self) {
+        *self = *self * rhs;
     }
 }
 
-impl<T: Num> Mul<Vector3<T>> for &Matrix3<T> {
+impl<T: Num> Mul<Vector3<T>> for Matrix3<T> {
     type Output = Vector3<T>;
     #[inline(always)]
     fn mul(self, rhs: Vector3<T>) -> Vector3<T> {
         Vector3(
-            Vector3::dot(&self.0, &rhs),
-            Vector3::dot(&self.1, &rhs),
-            Vector3::dot(&self.2, &rhs),
+            Vector3::dot(self.0, rhs),
+            Vector3::dot(self.1, rhs),
+            Vector3::dot(self.2, rhs),
         )
     }
 }
@@ -260,20 +237,20 @@ mod tests {
 
     #[quickcheck]
     fn matrix_multiplication(a: r64_3x3, b: r64_3x3, c: r64_3x3, alpha: r64) -> bool {
-        (&a * &r64_3x3::one() == a)
-            && (&r64_3x3::one() * &a == a)
-            && (&a * &r64_3x3::zero() == r64_3x3::zero())
-            && (&r64_3x3::zero() * &a == r64_3x3::zero())
-            && (&(a.clone() * alpha) * &b == (&a * &b) * alpha)
-            && (&a * &(b.clone() * alpha) == (&a * &b) * alpha)
-            && (&(&a * &b) * &c == &a * &(&b * &c))
+        (a * r64_3x3::one() == a)
+            && (r64_3x3::one() * a == a)
+            && (a * r64_3x3::zero() == r64_3x3::zero())
+            && (r64_3x3::zero() * a == r64_3x3::zero())
+            && ((a * alpha) * b == (a * b) * alpha)
+            && (a * (b * alpha) == (a * b) * alpha)
+            && ((a * b) * c == a * (b * c))
     }
 
     #[quickcheck]
     fn vector_multiplication(m: r64_3x3, u: r64_3) -> bool {
-        (&r64_3x3::one() * u.clone() == u)
-            && (&r64_3x3::zero() * u.clone() == r64_3::zero())
-            && (&m * r64_3::zero() == r64_3::zero())
+        (r64_3x3::one() * u == u)
+            && (r64_3x3::zero() * u == r64_3::zero())
+            && (m * r64_3::zero() == r64_3::zero())
     }
 
     #[quickcheck]

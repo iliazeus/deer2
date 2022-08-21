@@ -15,7 +15,7 @@ impl<N: Num, S: Spectrum<N>> LightSource for DirectionalLightSource<N, S> {
     fn cast_ray_from<R: Random<N>>(&self, origin: Vector3<N>, _rng: &mut R) -> Ray<N> {
         Ray {
             origin,
-            direction: Vector3::zero() - &self.direction,
+            direction: Vector3::zero() - self.direction,
         }
     }
 
