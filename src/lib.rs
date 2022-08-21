@@ -3,10 +3,12 @@
 
 pub mod affine;
 pub mod bitmap;
+pub mod cast;
 pub mod data;
 pub mod formats;
 pub mod geometry;
+pub mod light;
+pub mod light_source;
 pub mod linear;
-pub mod materials;
+pub mod material;
 pub mod numeric;
-pub mod tracing;

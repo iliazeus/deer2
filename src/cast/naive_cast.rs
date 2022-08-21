@@ -1,5 +1,6 @@
 use crate::affine::*;
 use crate::geometry::*;
+use crate::light::*;
 use crate::linear::*;
 use crate::numeric::*;
 

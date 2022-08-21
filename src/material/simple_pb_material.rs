@@ -1,15 +1,16 @@
+use crate::light::*;
 use crate::linear::*;
 use crate::numeric::*;
-use crate::tracing::*;
 
-pub struct SimplePbMaterial<N: Num> {
-    pub wavelength_peak: N,
-    pub wavelength_width: N,
+use super::*;
+
+pub struct SimplePbMaterial<N: Num, S: Spectrum<N>> {
+    pub spectrum: S,
     pub roughness: N,
     pub shininess: N,
 }
 
-impl<N: Num, R: Random<N>> Material<R> for SimplePbMaterial<N> {
+impl<N: Num, S: Spectrum<N>, R: Random<N>> Material<R> for SimplePbMaterial<N, S> {
     type Num = N;
     type Meta = ();
 
@@ -18,10 +19,8 @@ impl<N: Num, R: Random<N>> Material<R> for SimplePbMaterial<N> {
         mut fwd_uv_ray: Ray<Self::Num>,
         mut light: Light<Self::Num>,
         rng: &mut R,
-    ) -> Option<SecondaryRay<Self::Num, Self::Meta>> {
-        if (light.wavelength - self.wavelength_peak).abs() > self.wavelength_width {
-            return None;
-        }
+    ) -> Option<TracedRay<Self::Num, Self::Meta>> {
+        light = self.spectrum.map_light(light)?;
 
         fwd_uv_ray.direction /= fwd_uv_ray.direction.abs2();
 
@@ -43,7 +42,7 @@ impl<N: Num, R: Random<N>> Material<R> for SimplePbMaterial<N> {
             direction: fwd_uv_ray.direction - &dist - &dist,
         };
 
-        Some(SecondaryRay {
+        Some(TracedRay {
             ray: bwd_uv_ray,
             light,
             meta: (),
@@ -57,9 +56,7 @@ impl<N: Num, R: Random<N>> Material<R> for SimplePbMaterial<N> {
         mut light: Light<Self::Num>,
         rng: &mut R,
     ) -> Option<Light<Self::Num>> {
-        if (light.wavelength - self.wavelength_peak).abs() > self.wavelength_width {
-            return None;
-        }
+        light = self.spectrum.map_light(light)?;
 
         let h0 = self.roughness * rng.random();
         let h1 = self.roughness * rng.random();
