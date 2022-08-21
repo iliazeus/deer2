@@ -9,17 +9,17 @@ pub struct DirectionalLightSource<N: Num, S: Spectrum<N>> {
     pub direction: Vector3<N>,
 }
 
-impl<N: Num, S: Spectrum<N>, R: Random<N>> LightSource<R> for DirectionalLightSource<N, S> {
+impl<N: Num, S: Spectrum<N>> LightSource for DirectionalLightSource<N, S> {
     type Num = N;
 
-    fn cast_ray_from(&self, origin: Vector3<N>, _rng: &mut R) -> Option<Ray<N>> {
-        Some(Ray {
+    fn cast_ray_from<R: Random<N>>(&self, origin: Vector3<N>, _rng: &mut R) -> Ray<N> {
+        Ray {
             origin,
             direction: Vector3::zero() - &self.direction,
-        })
+        }
     }
 
-    fn get_exposure(&self, _fwd_ray: Ray<N>, light: Light<N>, _rng: &mut R) -> Option<N> {
-        self.spectrum.get_intensity(light.wavelength)
+    fn get_exposure<R: Random<N>>(&self, _fwd_ray: Ray<N>, light: Light<N>, _rng: &mut R) -> N {
+        light.intensity / self.spectrum.get_intensity(light.wavelength)
     }
 }

@@ -13,3 +13,4 @@ pub mod light_source;
 pub mod linear;
 pub mod material;
 pub mod numeric;
+pub mod render;

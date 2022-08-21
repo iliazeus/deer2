@@ -10,17 +10,23 @@ pub struct SimplePbMaterial<N: Num, S: Spectrum<N>> {
     pub shininess: N,
 }
 
-impl<N: Num, S: Spectrum<N>, R: Random<N>> Material<R> for SimplePbMaterial<N, S> {
+impl<N: Num, S: Spectrum<N>> Material for SimplePbMaterial<N, S> {
     type Num = N;
     type Meta = ();
 
-    fn trace_reflection(
+    fn trace_reflection<R: Random<N>>(
         &self,
-        mut fwd_uv_ray: Ray<Self::Num>,
-        mut light: Light<Self::Num>,
+        mut fwd_uv_ray: Ray<N>,
+        mut light: Light<N>,
         rng: &mut R,
-    ) -> Option<TracedRay<Self::Num, Self::Meta>> {
-        light.intensity /= self.spectrum.get_intensity(light.wavelength)?;
+        _meta: &(),
+    ) -> Option<(Ray<N>, Light<N>)> {
+        let reflectiveness = self.spectrum.get_intensity(light.wavelength);
+        if reflectiveness == N::zero() {
+            return None;
+        }
+
+        light.intensity /= reflectiveness;
 
         fwd_uv_ray.direction /= fwd_uv_ray.direction.abs2();
 
@@ -42,21 +48,23 @@ impl<N: Num, S: Spectrum<N>, R: Random<N>> Material<R> for SimplePbMaterial<N, S
             direction: fwd_uv_ray.direction - &dist - &dist,
         };
 
-        Some(TracedRay {
-            ray: bwd_uv_ray,
-            light,
-            meta: (),
-        })
+        Some((bwd_uv_ray, light))
     }
 
-    fn query_reflection(
+    fn query_reflection<R: Random<N>>(
         &self,
-        bwd_uv_ray: Ray<Self::Num>,
-        _fwd_uv_ray: Ray<Self::Num>,
-        mut light: Light<Self::Num>,
+        bwd_uv_ray: Ray<N>,
+        _fwd_uv_ray: Ray<N>,
+        mut light: Light<N>,
         rng: &mut R,
-    ) -> Option<Light<Self::Num>> {
-        light.intensity /= self.spectrum.get_intensity(light.wavelength)?;
+        _meta: &(),
+    ) -> Option<Light<N>> {
+        let reflectiveness = self.spectrum.get_intensity(light.wavelength);
+        if reflectiveness == N::zero() {
+            return None;
+        }
+
+        light.intensity /= reflectiveness;
 
         let h0 = self.roughness * rng.random();
         let h1 = self.roughness * rng.random();

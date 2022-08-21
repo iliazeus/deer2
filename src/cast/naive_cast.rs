@@ -15,7 +15,7 @@ where
     TM: TriangleMesh<'a, Num = N, Triangle = T>,
 {
     type Num = N;
-    type Meta = ();
+    type MaterialMeta = ();
 
     fn cast_ray(&self, bwd_ray: Ray<N>) -> Option<SurfacePoint<N, ()>> {
         let triangle_mesh = self.0;
@@ -55,7 +55,7 @@ where
     T: Triangle<Num = N>,
 {
     type Num = N;
-    type Meta = ();
+    type MaterialMeta = ();
 
     fn cast_ray(&self, bwd_ray: Ray<N>) -> Option<SurfacePoint<N, ()>> {
         let triangle = self.0;
@@ -93,6 +93,7 @@ where
 
         Some(SurfacePoint {
             fwd_uv_ray,
+            uv_xform,
             inv_uv_xform,
             meta: (),
         })
