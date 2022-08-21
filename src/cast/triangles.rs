@@ -31,6 +31,12 @@ pub struct Triangle {
     /// unit-length normal to triangle
     pub n1: ff32_3,
 
+    /// indirection to fit in a cache line
+    pub meta: Box<TriangleMeta>,
+}
+
+#[derive(Debug)]
+pub struct TriangleMeta {
     /// normal in A
     pub n_a: ff32_3,
 
@@ -39,6 +45,15 @@ pub struct Triangle {
 
     /// normal in C
     pub n_c: ff32_3,
+
+    pub a_u: ff32,
+    pub a_v: ff32,
+
+    pub b_u: ff32,
+    pub b_v: ff32,
+
+    pub c_u: ff32,
+    pub c_v: ff32,
 }
 
 #[derive(Debug)]
@@ -57,9 +72,15 @@ pub struct RayIntersection<'a> {
 
     /// projection of AP on AC
     pub ap_ac: ff32,
+}
 
+#[derive(Debug)]
+pub struct InterpolatedMeta {
     /// interpolated normal
     pub ni: ff32_3,
+
+    pub u: ff32,
+    pub v: ff32,
 }
 
 pub fn cast_ray_through_triangles<'a>(
@@ -114,20 +135,40 @@ pub fn cast_ray_through_triangles<'a>(
     }
 
     if let Some(cur_tri) = cur_tri {
-        // weighted vertex normals
-        let wn_a = cur_tri.n_a * (ff32(1.0) - cur_ap_ab - cur_ap_ac);
-        let wn_b = cur_tri.n_b * cur_ap_ab;
-        let wn_c = cur_tri.n_c * cur_ap_ac;
-
         Some(RayIntersection {
             tri: cur_tri,
             d: cur_d,
             p: cur_p,
             ap_ab: cur_ap_ab,
             ap_ac: cur_ap_ac,
-            ni: wn_a + wn_b + wn_c,
         })
     } else {
         None
+    }
+}
+
+pub fn interpolate_triangle_meta<'a>(isec: &'a RayIntersection<'a>) -> InterpolatedMeta {
+    // weights
+    let wa = ff32(1.0) - isec.ap_ab - isec.ap_ac;
+    let wb = isec.ap_ab;
+    let wc = isec.ap_ac;
+
+    // weighted vertex normals
+    let wn_a = isec.tri.meta.n_a * wa;
+    let wn_b = isec.tri.meta.n_b * wb;
+    let wn_c = isec.tri.meta.n_c * wc;
+
+    let wu_a = isec.tri.meta.a_u * wa;
+    let wu_b = isec.tri.meta.b_u * wb;
+    let wu_c = isec.tri.meta.c_u * wc;
+
+    let wv_a = isec.tri.meta.a_v * wa;
+    let wv_b = isec.tri.meta.b_v * wb;
+    let wv_c = isec.tri.meta.c_v * wc;
+
+    InterpolatedMeta {
+        ni: wn_a + wn_b + wn_c,
+        u: wu_a + wu_b + wu_c,
+        v: wv_a + wv_b + wv_c,
     }
 }

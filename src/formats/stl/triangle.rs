@@ -56,7 +56,7 @@ impl StlTriangle {
         Ok(())
     }
 
-    pub fn into_cast_triangle(self) -> cast::Triangle {
+    pub fn to_cast_triangle(&self) -> cast::Triangle {
         let n = if self.n != ff32_3::zero() {
             self.n
         } else {
@@ -70,10 +70,23 @@ impl StlTriangle {
             ac: self.c - self.a,
             ac_abs2: (self.c - self.a).abs2(),
             n1: n / n.abs(),
-            // STL does not store vertex normals
-            n_a: n / n.abs(),
-            n_b: n / n.abs(),
-            n_c: n / n.abs(),
+
+            meta: Box::new(cast::TriangleMeta {
+                // STL has no vertex normals
+                n_a: n / n.abs(),
+                n_b: n / n.abs(),
+                n_c: n / n.abs(),
+
+                // STL has no UV mapping info
+                a_u: ff32(0.0),
+                a_v: ff32(0.0),
+
+                b_u: ff32(1.0),
+                b_v: ff32(0.0),
+
+                c_u: ff32(0.0),
+                c_v: ff32(1.0),
+            }),
         }
     }
 }

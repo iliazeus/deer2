@@ -48,8 +48,8 @@ impl StlModel {
 
     pub fn into_cast_triangles(self) -> Vec<cast::Triangle> {
         self.triangles
-            .into_iter()
-            .map(|tri| tri.into_cast_triangle())
+            .iter()
+            .map(|tri| tri.to_cast_triangle())
             .collect()
     }
 }
