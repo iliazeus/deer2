@@ -17,6 +17,11 @@ impl Display for ff32 {
 
 impl Num for ff32 {
     #[inline(always)]
+    fn from_usize(x: usize) -> Self {
+        ff32(x as f32)
+    }
+
+    #[inline(always)]
     fn abs(self) -> ff32 {
         ff32(self.0.abs())
     }

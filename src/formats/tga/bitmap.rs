@@ -124,15 +124,13 @@ impl TgaBitmap {
         let g = reader.read_u8()?;
         let b = reader.read_u8()?;
 
-        Ok(u8_rgb::new(r, g, b))
+        Ok(u8_rgb { r, g, b })
     }
 
     fn write_pixel_to<W: Write>(pixel: &u8_rgb, writer: &mut W) -> Result<(), io::Error> {
-        let (r, g, b) = pixel.components();
-
-        writer.write_u8(r)?;
-        writer.write_u8(g)?;
-        writer.write_u8(b)?;
+        writer.write_u8(pixel.r)?;
+        writer.write_u8(pixel.g)?;
+        writer.write_u8(pixel.b)?;
 
         Ok(())
     }

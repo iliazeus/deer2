@@ -19,6 +19,7 @@ pub trait Num:
     + Zero
     + One
 {
+    fn from_usize(x: usize) -> Self;
     fn abs(self) -> Self;
     fn sqrt(self) -> Self;
     fn sin(self) -> Self;
@@ -50,6 +51,10 @@ macro_rules! impl_float {
         }
 
         impl Num for $T {
+            fn from_usize(x: usize) -> Self {
+                x as Self
+            }
+
             #[inline(always)]
             fn abs(self) -> Self {
                 $T::abs(self)

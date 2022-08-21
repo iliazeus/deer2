@@ -1,58 +1,33 @@
 #![allow(non_camel_case_types)]
 
 use std::fmt::Debug;
-use std::num::Saturating;
 
 pub trait Pixel: Debug + Clone {
     fn black() -> Self;
     fn white() -> Self;
-
-    fn add(&self, other: &Self) -> Self;
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct u8_rgb {
-    pub r: Saturating<u8>,
-    pub g: Saturating<u8>,
-    pub b: Saturating<u8>,
-}
-
-impl u8_rgb {
-    pub fn new(r: u8, g: u8, b: u8) -> Self {
-        Self {
-            r: Saturating(r),
-            g: Saturating(g),
-            b: Saturating(b),
-        }
-    }
-
-    pub fn components(&self) -> (u8, u8, u8) {
-        (self.r.0, self.g.0, self.b.0)
-    }
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
 }
 
 impl Pixel for u8_rgb {
     fn black() -> Self {
         Self {
-            r: Saturating(0x00),
-            g: Saturating(0x00),
-            b: Saturating(0x00),
+            r: 0x00,
+            g: 0x00,
+            b: 0x00,
         }
     }
 
     fn white() -> Self {
         Self {
-            r: Saturating(0xFF),
-            g: Saturating(0xFF),
-            b: Saturating(0xFF),
-        }
-    }
-
-    fn add(&self, other: &Self) -> Self {
-        Self {
-            r: self.r + other.r,
-            g: self.g + other.g,
-            b: self.b + other.b,
+            r: 0xFF,
+            g: 0xFF,
+            b: 0xFF,
         }
     }
 }
@@ -78,14 +53,6 @@ impl Pixel for f32_rgb {
             r: 1.0,
             g: 1.0,
             b: 1.0,
-        }
-    }
-
-    fn add(&self, other: &Self) -> Self {
-        Self {
-            r: self.r + other.r,
-            g: self.g + other.g,
-            b: self.b + other.b,
         }
     }
 }

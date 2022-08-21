@@ -6,8 +6,8 @@ use crate::numeric::*;
 /// An invertible affine transform.
 #[derive(Debug, Clone)]
 pub struct Transform3<T: Num> {
-    matrix: Matrix3<T>,
-    origin: Vector3<T>,
+    pub matrix: Matrix3<T>,
+    pub origin: Vector3<T>,
 }
 
 pub type i8_xform3 = Transform3<i8>;
@@ -46,5 +46,12 @@ impl<T: Num> Transform3<T> {
             matrix,
             origin: translation,
         })
+    }
+
+    /// First apply `self`, then apply `other`.
+    pub fn chain(mut self, other: &Self) -> Self {
+        self.origin = &other.matrix * self.origin + &other.origin;
+        self.matrix = &other.matrix * &self.matrix;
+        self
     }
 }

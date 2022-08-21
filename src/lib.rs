@@ -3,6 +3,7 @@
 
 pub mod affine;
 pub mod bitmap;
+pub mod camera;
 pub mod cast;
 pub mod data;
 pub mod formats;
