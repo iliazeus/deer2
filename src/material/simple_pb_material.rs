@@ -20,7 +20,7 @@ impl<N: Num, S: Spectrum<N>, R: Random<N>> Material<R> for SimplePbMaterial<N, S
         mut light: Light<Self::Num>,
         rng: &mut R,
     ) -> Option<TracedRay<Self::Num, Self::Meta>> {
-        light = self.spectrum.map_light(light)?;
+        light.intensity /= self.spectrum.get_intensity(light.wavelength)?;
 
         fwd_uv_ray.direction /= fwd_uv_ray.direction.abs2();
 
@@ -56,7 +56,7 @@ impl<N: Num, S: Spectrum<N>, R: Random<N>> Material<R> for SimplePbMaterial<N, S
         mut light: Light<Self::Num>,
         rng: &mut R,
     ) -> Option<Light<Self::Num>> {
-        light = self.spectrum.map_light(light)?;
+        light.intensity /= self.spectrum.get_intensity(light.wavelength)?;
 
         let h0 = self.roughness * rng.random();
         let h1 = self.roughness * rng.random();
