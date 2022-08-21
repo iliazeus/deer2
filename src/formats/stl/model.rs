@@ -1,5 +1,7 @@
 use crate::affine::*;
 use crate::geometry::*;
+use crate::linear::*;
+use crate::numeric::*;
 
 use std::io;
 use std::io::{Read, Write};
@@ -15,9 +17,9 @@ pub struct StlModel {
 }
 
 impl Geometry for StlModel {
-    type Num = f32;
+    type Num = ff32;
 
-    fn apply(mut self, xform: &Transform3<f32>) -> Self {
+    fn apply(mut self, xform: &Transform3<ff32>) -> Self {
         self.triangles = self.triangles.into_iter().map(|t| t.apply(xform)).collect();
         self
     }
@@ -29,6 +31,12 @@ impl<'a> TriangleMesh<'a> for StlModel {
 
     fn triangles(&'a self) -> Self::Triangles {
         self.triangles.iter()
+    }
+
+    type Vertices = impl Iterator<Item = Vector3<Self::Num>> + 'a;
+
+    fn vertices(&'a self) -> Self::Vertices {
+        self.triangles.iter().flat_map(|t| [t.a, t.b, t.c])
     }
 }
 

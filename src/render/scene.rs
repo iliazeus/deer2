@@ -3,6 +3,7 @@ use crate::cast::*;
 use crate::geometry::Geometry;
 use crate::light::*;
 use crate::light_source::*;
+use crate::linear::Vector3;
 use crate::material::*;
 use crate::numeric::*;
 
@@ -26,15 +27,14 @@ where
     M: Material<Num = N, Meta = C::MaterialMeta>,
     L: LightSource<Num = N>,
 {
-    pub fn trace_pixel<S: Spectrum<N>, R: Random<N>>(
+    pub fn trace_pixel<R: Random<N>>(
         &self,
-        pixel_x: usize,
-        pixel_y: usize,
+        screen_pixel: Vector3<N>,
         wavelength: N,
         rng: &mut R,
         reflection_count: usize,
     ) -> N {
-        let mut ray = self.camera.cast_ray_through_pixel(pixel_x, pixel_y);
+        let mut ray = self.camera.cast_ray_through_pixel(screen_pixel);
 
         let mut light = Light {
             wavelength,

@@ -7,15 +7,10 @@ use super::*;
 use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-pub type i8_3 = Vector3<i8>;
-pub type i16_3 = Vector3<i16>;
-pub type i32_3 = Vector3<i32>;
-pub type i64_3 = Vector3<i64>;
-
-pub type isize_3 = Vector3<isize>;
-
 pub type f32_3 = Vector3<f32>;
 pub type f64_3 = Vector3<f64>;
+
+pub type ff32_3 = Vector3<ff32>;
 
 pub type r64_3 = Vector3<r64>;
 

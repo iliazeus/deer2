@@ -1,5 +1,5 @@
 #![feature(core_intrinsics)]
-#![feature(saturating_int_impl)]
+#![feature(type_alias_impl_trait)]
 
 pub mod affine;
 pub mod bitmap;

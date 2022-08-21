@@ -108,12 +108,39 @@ impl Bitmap for TgaBitmap {
             origin_y: 0,
             width: width.try_into().expect("bitmap width too big"),
             height: height.try_into().expect("image height too big"),
-            pixel_depth: 8,
+            pixel_depth: 24,
             alpha_depth: 0,
             is_top_to_bottom: true,
             is_right_to_left: false,
             color_map_bytes: vec![],
             pixels: vec![fill; width * height],
+        }
+    }
+
+    fn from_pixels<I>(width: usize, height: usize, pixels: I) -> Self
+    where
+        I: Iterator<Item = Self::Pixel>,
+    {
+        let pixels: Vec<Self::Pixel> = pixels.collect();
+        assert!(pixels.len() == width * height);
+
+        TgaBitmap {
+            id: String::new(),
+            color_map_type: ColorMapType::None,
+            image_type: ImageType::TrueColor,
+            color_map_first_index: 0,
+            color_map_length: 0,
+            color_map_entry_size: 0,
+            origin_x: 0,
+            origin_y: 0,
+            width: width.try_into().expect("bitmap width too big"),
+            height: height.try_into().expect("image height too big"),
+            pixel_depth: 24,
+            alpha_depth: 0,
+            is_top_to_bottom: true,
+            is_right_to_left: false,
+            color_map_bytes: vec![],
+            pixels,
         }
     }
 }

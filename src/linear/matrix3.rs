@@ -11,15 +11,10 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Matrix3<T: Num>(pub Vector3<T>, pub Vector3<T>, pub Vector3<T>);
 
-pub type i8_3x3 = Matrix3<i8>;
-pub type i16_3x3 = Matrix3<i16>;
-pub type i32_3x3 = Matrix3<i32>;
-pub type i64_3x3 = Matrix3<i64>;
-
-pub type isize_3x3 = Matrix3<isize>;
-
 pub type f32_3x3 = Matrix3<f32>;
 pub type f64_3x3 = Matrix3<f64>;
+
+pub type ff32_3x3 = Matrix3<ff32>;
 
 pub type r64_3x3 = Matrix3<r64>;
 

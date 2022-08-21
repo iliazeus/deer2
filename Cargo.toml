@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 byteorder = "1.4.3"
-rand = { version = "0.8.5", features = ["small_rng"], default-features = false }
+rand = { version = "0.8.5", features = ["small_rng"] }
 
 [dev-dependencies]
 quickcheck = "1.0.3"

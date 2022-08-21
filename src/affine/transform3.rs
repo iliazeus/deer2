@@ -10,15 +10,10 @@ pub struct Transform3<T: Num> {
     pub origin: Vector3<T>,
 }
 
-pub type i8_xform3 = Transform3<i8>;
-pub type i16_xform3 = Transform3<i16>;
-pub type i32_xform3 = Transform3<i32>;
-pub type i64_xform3 = Transform3<i64>;
-
-pub type isize_xform3 = Transform3<isize>;
-
 pub type f32_xform3 = Transform3<f32>;
 pub type f64_xform3 = Transform3<f64>;
+
+pub type ff32_xform3 = Transform3<ff32>;
 
 pub type r64_xform3 = Transform3<r64>;
 
