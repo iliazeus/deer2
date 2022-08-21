@@ -1,8 +1,3 @@
-use crate::affine::*;
-use crate::geometry::*;
-use crate::linear::*;
-use crate::numeric::*;
-
 use std::io;
 use std::io::{Read, Write};
 
@@ -14,30 +9,6 @@ use super::*;
 pub struct StlModel {
     pub header: String,
     pub triangles: Vec<StlTriangle>,
-}
-
-impl Geometry for StlModel {
-    type Num = ff32;
-
-    fn apply(mut self, xform: &Transform3<ff32>) -> Self {
-        self.triangles = self.triangles.into_iter().map(|t| t.apply(xform)).collect();
-        self
-    }
-}
-
-impl<'a> TriangleMesh<'a> for StlModel {
-    type Triangle = StlTriangle;
-    type Triangles = std::slice::Iter<'a, StlTriangle>;
-
-    fn triangles(&'a self) -> Self::Triangles {
-        self.triangles.iter()
-    }
-
-    type Vertices = impl Iterator<Item = Vector3<Self::Num>> + 'a;
-
-    fn vertices(&'a self) -> Self::Vertices {
-        self.triangles.iter().flat_map(|t| [t.a, t.b, t.c])
-    }
 }
 
 impl StlModel {

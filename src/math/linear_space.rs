@@ -1,4 +1,4 @@
-use crate::numeric::{Num, One, Zero};
+use super::*;
 
 use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
@@ -31,8 +31,6 @@ macro_rules! LinearSpace_tests {
     ($T:ident) => {
         mod linear_space {
             use super::*;
-
-            use crate::numeric::r64;
 
             use quickcheck_macros::quickcheck;
 

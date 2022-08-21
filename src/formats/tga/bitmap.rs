@@ -1,9 +1,11 @@
-use crate::bitmap::*;
-
 use std::io;
 use std::io::{Read, Write};
 
 use byteorder::{ReadBytesExt, WriteBytesExt, LE};
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+#[allow(non_camel_case_types)]
+pub struct u8_rgb(pub u8, pub u8, pub u8);
 
 /// Only TGA 1.0 uncompressed 24-bit images are supported.
 /// Only top-to-bottom, left-to-right pixel order is supported.
@@ -72,31 +74,8 @@ impl From<u8> for ImageType {
     }
 }
 
-impl Bitmap for TgaBitmap {
-    type Pixel = u8_rgb;
-
-    #[inline(always)]
-    fn width(&self) -> usize {
-        self.width as usize
-    }
-
-    #[inline(always)]
-    fn height(&self) -> usize {
-        self.height as usize
-    }
-
-    #[inline(always)]
-    fn get_pixel(&self, x: usize, y: usize) -> &u8_rgb {
-        &self.pixels[y * self.width() + x]
-    }
-
-    #[inline(always)]
-    fn get_mut_pixel(&mut self, x: usize, y: usize) -> &mut u8_rgb {
-        let width = self.width();
-        &mut self.pixels[y * width + x]
-    }
-
-    fn with_dimensions(width: usize, height: usize, fill: u8_rgb) -> Self {
+impl TgaBitmap {
+    pub fn with_dimensions(width: usize, height: usize, fill: u8_rgb) -> Self {
         TgaBitmap {
             id: String::new(),
             color_map_type: ColorMapType::None,
@@ -117,11 +96,8 @@ impl Bitmap for TgaBitmap {
         }
     }
 
-    fn from_pixels<I>(width: usize, height: usize, pixels: I) -> Self
-    where
-        I: Iterator<Item = Self::Pixel>,
-    {
-        let pixels: Vec<Self::Pixel> = pixels.collect();
+    pub fn from_pixels<I: Iterator<Item = u8_rgb>>(width: usize, height: usize, pixels: I) -> Self {
+        let pixels: Vec<u8_rgb> = pixels.collect();
         assert!(pixels.len() == width * height);
 
         TgaBitmap {
@@ -151,13 +127,13 @@ impl TgaBitmap {
         let g = reader.read_u8()?;
         let b = reader.read_u8()?;
 
-        Ok(u8_rgb { r, g, b })
+        Ok(u8_rgb(r, g, b))
     }
 
     fn write_pixel_to<W: Write>(pixel: &u8_rgb, writer: &mut W) -> Result<(), io::Error> {
-        writer.write_u8(pixel.r)?;
-        writer.write_u8(pixel.g)?;
-        writer.write_u8(pixel.b)?;
+        writer.write_u8(pixel.0)?;
+        writer.write_u8(pixel.1)?;
+        writer.write_u8(pixel.2)?;
 
         Ok(())
     }

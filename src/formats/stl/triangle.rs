@@ -1,7 +1,4 @@
-use crate::affine::*;
-use crate::geometry::*;
-use crate::linear::*;
-use crate::numeric::*;
+use crate::math::*;
 
 use std::io;
 use std::io::{Read, Write};
@@ -15,59 +12,6 @@ pub struct StlTriangle {
     pub b: ff32_3,
     pub c: ff32_3,
     pub attr: u16,
-}
-
-impl Geometry for StlTriangle {
-    type Num = ff32;
-
-    fn apply(mut self, xform: &Transform3<ff32>) -> Self {
-        self.n = xform.map_vector(self.n);
-
-        self.a = xform.map_point(self.a);
-        self.b = xform.map_point(self.b);
-        self.c = xform.map_point(self.c);
-
-        self
-    }
-}
-
-impl Triangle for StlTriangle {
-    #[inline(always)]
-    fn from_vertices(a: ff32_3, b: ff32_3, c: ff32_3) -> Self {
-        let n = ff32_3::cross(b - a, c - a);
-        let attr = 0u16;
-
-        StlTriangle { n, a, b, c, attr }
-    }
-
-    #[inline(always)]
-    fn into_vertices(self) -> (ff32_3, ff32_3, ff32_3) {
-        (self.a, self.b, self.c)
-    }
-
-    #[inline(always)]
-    fn vertex_a(&self) -> ff32_3 {
-        self.a
-    }
-
-    #[inline(always)]
-    fn vertex_b(&self) -> ff32_3 {
-        self.b
-    }
-
-    #[inline(always)]
-    fn vertex_c(&self) -> ff32_3 {
-        self.c
-    }
-
-    #[inline(always)]
-    fn normal(&self) -> Vector3<Self::Num> {
-        if self.n != ff32_3::zero() {
-            self.n
-        } else {
-            ff32_3::cross(self.b - self.a, self.c - self.a)
-        }
-    }
 }
 
 impl StlTriangle {
