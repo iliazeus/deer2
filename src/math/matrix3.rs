@@ -21,6 +21,7 @@ impl<T: Num> LinearSpace for Matrix3<T> {
 }
 
 impl<T: Num> Display for Matrix3<T> {
+    #[inline(always)]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if !f.alternate() {
             write!(f, "[{}, {}, {}]", self.0, self.1, self.2)
@@ -119,6 +120,7 @@ impl<T: Num> One for Matrix3<T> {
 
 impl<T: Num> Mul<Matrix3<T>> for Matrix3<T> {
     type Output = Matrix3<T>;
+    #[inline(always)]
     fn mul(self, rhs: Matrix3<T>) -> Matrix3<T> {
         macro_rules! mul {
             ($i:tt, $j:tt) => {
@@ -135,6 +137,7 @@ impl<T: Num> Mul<Matrix3<T>> for Matrix3<T> {
 }
 
 impl<T: Num> MulAssign<Self> for Matrix3<T> {
+    #[inline(always)]
     fn mul_assign(&mut self, rhs: Self) {
         *self = *self * rhs;
     }
@@ -153,6 +156,7 @@ impl<T: Num> Mul<Vector3<T>> for Matrix3<T> {
 }
 
 impl<T: Num> Matrix3<T> {
+    #[inline(always)]
     pub fn tr(&self) -> Self {
         Self(
             Vector3(self.0 .0, self.1 .0, self.2 .1),
@@ -161,16 +165,19 @@ impl<T: Num> Matrix3<T> {
         )
     }
 
+    #[inline(always)]
     pub fn from_rows(v0: Vector3<T>, v1: Vector3<T>, v2: Vector3<T>) -> Self {
         Self(v0, v1, v2)
     }
 
+    #[inline(always)]
     pub fn from_cols(e0: Vector3<T>, e1: Vector3<T>, e2: Vector3<T>) -> Self {
         Self(e0, e1, e2).tr()
     }
 }
 
 impl<T: Num> Matrix3<T> {
+    #[inline(always)]
     pub fn det(&self) -> T {
         let d00 = T::zero() + (self.1 .1 * self.2 .2 - self.1 .2 * self.2 .1);
         let d01 = T::zero() - (self.1 .0 * self.2 .2 - self.1 .2 * self.2 .0);
@@ -181,6 +188,7 @@ impl<T: Num> Matrix3<T> {
         det
     }
 
+    #[inline(always)]
     pub fn inv(&self) -> Option<Self> {
         let d00 = T::zero() + (self.1 .1 * self.2 .2 - self.1 .2 * self.2 .1);
         let d01 = T::zero() - (self.1 .0 * self.2 .2 - self.1 .2 * self.2 .0);

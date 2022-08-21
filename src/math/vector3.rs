@@ -16,18 +16,22 @@ pub type r64_3 = Vector3<r64>;
 pub struct Vector3<T: Num>(pub T, pub T, pub T);
 
 impl<T: Num> Vector3<T> {
+    #[inline(always)]
     pub fn new(x: T, y: T, z: T) -> Self {
         Self(x, y, z)
     }
 
+    #[inline(always)]
     pub fn x(&self) -> T {
         self.0
     }
 
+    #[inline(always)]
     pub fn y(&self) -> T {
         self.1
     }
 
+    #[inline(always)]
     pub fn z(&self) -> T {
         self.2
     }
@@ -38,6 +42,7 @@ impl<T: Num> LinearSpace for Vector3<T> {
 }
 
 impl<T: Num> Display for Vector3<T> {
+    #[inline(always)]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[{}, {}, {}]", self.0, self.1, self.2)
     }

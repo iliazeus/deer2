@@ -7,9 +7,11 @@ use std::ops::*;
 use super::*;
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
+#[repr(transparent)]
 pub struct ff32(pub f32);
 
 impl Display for ff32 {
+    #[inline(always)]
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(&self.0, f)
     }
@@ -43,12 +45,14 @@ impl Num for ff32 {
 }
 
 impl Zero for ff32 {
+    #[inline(always)]
     fn zero() -> ff32 {
         ff32(0.0)
     }
 }
 
 impl One for ff32 {
+    #[inline(always)]
     fn one() -> ff32 {
         ff32(1.0)
     }
@@ -124,5 +128,43 @@ impl DivAssign<ff32> for ff32 {
     #[inline(always)]
     fn div_assign(&mut self, rhs: ff32) {
         *self = *self / rhs
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    extern crate test;
+    use test::Bencher;
+
+    fn generic_bench<N: Num, const SIZE: usize>() -> N {
+        let mut accum = N::zero();
+
+        for i in 0..SIZE {
+            let v1 = Vector3(N::from_usize(i + 0), N::from_usize(i + 1), N::from_usize(i + 2));
+            let v2 = Vector3(N::from_usize(i + 3), N::from_usize(i + 4), N::from_usize(i + 5));
+            let v3 = Vector3(N::from_usize(i + 6), N::from_usize(i + 7), N::from_usize(i + 8));
+
+            let m = Matrix3(v1, v2, v3);
+            accum += (m * m).det();
+        }
+
+        accum
+    }
+
+    #[bench]
+    fn bench_ff32(b: &mut Bencher) {
+        b.iter(|| generic_bench::<ff32, 1_000_000>())
+    }
+
+    #[bench]
+    fn bench_f32(b: &mut Bencher) {
+        b.iter(|| generic_bench::<f32, 1_000_000>())
+    }
+
+    #[bench]
+    fn bench_f64(b: &mut Bencher) {
+        b.iter(|| generic_bench::<f64, 1_000_000>())
     }
 }

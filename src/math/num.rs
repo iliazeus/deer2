@@ -51,6 +51,7 @@ macro_rules! impl_float {
         }
 
         impl Num for $T {
+            #[inline(always)]
             fn from_usize(x: usize) -> Self {
                 x as Self
             }
