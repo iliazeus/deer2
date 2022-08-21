@@ -1,3 +1,4 @@
+#![feature(core_intrinsics)]
 #![feature(saturating_int_impl)]
 
 pub mod affine;
