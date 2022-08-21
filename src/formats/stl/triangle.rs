@@ -1,3 +1,4 @@
+use crate::cast;
 use crate::math::*;
 
 use std::io;
@@ -53,5 +54,26 @@ impl StlTriangle {
         writer.write_u16::<LE>(self.attr)?;
 
         Ok(())
+    }
+
+    pub fn into_cast_triangle(self) -> cast::Triangle {
+        let n = if self.n != ff32_3::zero() {
+            self.n
+        } else {
+            ff32_3::cross(self.b - self.a, self.c - self.a)
+        };
+
+        cast::Triangle {
+            a: self.a,
+            ab: self.b - self.a,
+            ab_abs2: (self.b - self.a).abs2(),
+            ac: self.c - self.a,
+            ac_abs2: (self.c - self.a).abs2(),
+            n1: n / n.abs(),
+            // STL does not store vertex normals
+            n_a: n / n.abs(),
+            n_b: n / n.abs(),
+            n_c: n / n.abs(),
+        }
     }
 }

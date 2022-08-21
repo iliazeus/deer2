@@ -1,3 +1,5 @@
+use crate::cast;
+
 use std::io;
 use std::io::{Read, Write};
 
@@ -42,5 +44,12 @@ impl StlModel {
         }
 
         Ok(())
+    }
+
+    pub fn into_cast_triangles(self) -> Vec<cast::Triangle> {
+        self.triangles
+            .into_iter()
+            .map(|tri| tri.into_cast_triangle())
+            .collect()
     }
 }
