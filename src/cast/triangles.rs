@@ -26,6 +26,10 @@ pub struct Triangle {
 
 #[derive(Debug)]
 pub struct TriangleMeta {
+    pub a: ff32_3,
+    pub b: ff32_3,
+    pub c: ff32_3,
+
     /// cols are vertex normals; length == curvature
     pub abc_nc: ff32_3x3,
 
@@ -84,9 +88,7 @@ pub fn cast_ray_through_triangles<'a>(
 
         let p_abc = src_abc + dir_abc * d;
 
-        if likely(
-            p_abc.x() < -EPS || p_abc.y() < -EPS || p_abc.x() + p_abc.y() > ff32(1.0) + EPS,
-        ) {
+        if likely(p_abc.x() < -EPS || p_abc.y() < -EPS || p_abc.x() + p_abc.y() > ff32(1.0) + EPS) {
             continue;
         }
 

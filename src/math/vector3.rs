@@ -186,6 +186,24 @@ impl<T: Num> Vector3<T> {
     pub fn triple(a: Self, b: Self, c: Self) -> T {
         Self::dot(a, Self::cross(b, c))
     }
+
+    #[inline(always)]
+    pub fn min_coords(a: Self, b: Self) -> Self {
+        Self(
+            if a.0 < b.0 { a.0 } else { b.0 },
+            if a.1 < b.1 { a.1 } else { b.1 },
+            if a.2 < b.2 { a.2 } else { b.2 },
+        )
+    }
+
+    #[inline(always)]
+    pub fn max_coords(a: Self, b: Self) -> Self {
+        Self(
+            if a.0 > b.0 { a.0 } else { b.0 },
+            if a.1 > b.1 { a.1 } else { b.1 },
+            if a.2 > b.2 { a.2 } else { b.2 },
+        )
+    }
 }
 
 #[cfg(test)]

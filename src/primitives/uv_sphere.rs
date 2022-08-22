@@ -42,6 +42,10 @@ impl UvSphere {
             .unwrap(),
 
             meta: Box::new(TriangleMeta {
+                a: va.p,
+                b: vb.p,
+                c: vc.p,
+
                 abc_nc: ff32_3x3::from_cols(va.nc, vb.nc, vc.nc),
 
                 abc_uv: ff32_3x3::from_cols(

@@ -70,6 +70,10 @@ impl StlTriangle {
                 .unwrap(),
 
             meta: Box::new(cast::TriangleMeta {
+                a: self.a,
+                b: self.b,
+                c: self.c,
+
                 /// STL has no vertex normals
                 abc_nc: ff32_3x3::from_cols(n1, n1, n1),
 

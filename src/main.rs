@@ -1,29 +1,53 @@
 use deer2::cast::*;
+use deer2::formats::stl::*;
 use deer2::formats::tga::*;
 use deer2::math::*;
-use deer2::primitives::*;
-use deer2::formats::stl::*;
-use deer2::data::stl::*;
 
-use std::io::Cursor;
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
+
+use std::fs::File;
+use std::io::{BufReader, BufWriter};
 
 fn main() {
-    let filename = std::env::args().nth(1).unwrap();
-    // let filename = "./out.tga";
+    // let in_filename = std::env::args().nth(1).unwrap();
+    // let out_filename = std::env::args().nth(2).unwrap();
 
-    // let sphere = UvSphere::new(ff32_3::zero(), ff32(1.0), 16, 32);
+    let in_filename = "./src/data/stl/stanford_bunny.stl";
+    let out_filename = "./stanford_bunny.tga";
 
-    let teapot = StlModel::read_from(&mut Cursor::new(UTAH_TEAPOT)).unwrap();
-    let triangles = teapot.into_cast_triangles();
+    // let in_filename = "./src/data/stl/utah_teapot.stl";
+    // let out_filename = "./utah_teapot.tga";
+
+    let in_file = File::options().read(true).open(in_filename).unwrap();
+    let mut in_file = BufReader::with_capacity(8 * 1024 * 1024, in_file);
+
+    let out_file = File::options()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(out_filename)
+        .unwrap();
+    let mut out_file = BufWriter::with_capacity(8 * 1024 * 1024, out_file);
+
+    let model = StlModel::read_from(&mut in_file).unwrap();
+    let triangles = model.into_cast_triangles();
+
+    let mut rng = SmallRng::seed_from_u64(117);
+    let bsp_tree = BspTree::build_tri_randomized(&triangles, &mut rng, 16);
+    // let bsp_tree = BspTree::build_kd(&triangles);
 
     let mut bitmap = TgaBitmap::with_dimensions(512, 512, u8_rgb(0, 0, 0));
+    // let mut bitmap = TgaBitmap::with_dimensions(64, 64, u8_rgb(0, 0, 0));
 
-    // let pov = ff32_3::new(ff32(0.0), ff32(0.0), ff32(3.0));
-    // let screen_00 = ff32_3::new(ff32(-0.5), ff32(0.5), ff32(2.0));
+    // // utah teapot settings
+    // let pov = ff32_3::new(ff32(0.0), ff32(0.0), ff32(26.0));
+    // let screen_00 = ff32_3::new(ff32(-0.5), ff32(0.5), ff32(25.0));
     // let screen_step = ff32(1.0) / ff32::from_usize(bitmap.height());
 
-    let pov = ff32_3::new(ff32(0.0), ff32(0.0), ff32(26.0));
-    let screen_00 = ff32_3::new(ff32(-0.5), ff32(0.5), ff32(25.0));
+    // stanford bunny settings
+    let pov = ff32_3::new(ff32(0.0), ff32(0.0), ff32(306.0));
+    let screen_00 = ff32_3::new(ff32(-0.5), ff32(0.5), ff32(305.0));
     let screen_step = ff32(1.0) / ff32::from_usize(bitmap.height());
 
     let light_dir1 = ff32_3::new(ff32(-1.0), ff32(1.0), ff32(1.0)).norm();
@@ -43,7 +67,8 @@ fn main() {
                 dir1: (screen_p - pov).norm(),
             };
 
-            let isec = cast_ray_through_triangles(ray, &triangles, ff32(1000.0));
+            // let isec = cast_ray_through_triangles(ray, &triangles, ff32(2000.0));
+            let isec = bsp_tree.cast_ray(ray, ff32(2000.0));
             if let Some(isec) = isec {
                 // *bitmap.get_mut(pixel_x, pixel_y) = u8_rgb(255, 0, 0);
 
@@ -72,8 +97,9 @@ fn main() {
                         dir1: light_dir1,
                     };
 
-                    let light_isec =
-                        cast_ray_through_triangles(light_ray, &triangles, ff32(1000.0));
+                    // let light_isec =
+                    //     cast_ray_through_triangles(light_ray, &triangles, ff32(1000.0));
+                    let light_isec = bsp_tree.cast_ray(light_ray, ff32(2000.0));
                     if light_isec.is_none() {
                         light += ff32(0.8 * light_dot.0.clamp(0.0, 1.0))
                     }
@@ -84,13 +110,6 @@ fn main() {
             }
         }
     }
-
-    let mut out_file = std::fs::File::options()
-        .create(true)
-        .truncate(true)
-        .write(true)
-        .open(filename)
-        .unwrap();
 
     bitmap.write_to(&mut out_file).unwrap();
 }
