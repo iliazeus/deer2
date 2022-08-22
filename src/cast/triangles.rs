@@ -1,8 +1,8 @@
 use crate::math::*;
 
-use std::intrinsics::{likely, unlikely};
+use std::intrinsics::likely;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Ray {
     /// ray source
     pub src: ff32_3,
@@ -16,20 +16,9 @@ pub struct Triangle {
     /// vertex A
     pub a: ff32_3,
 
-    /// vector AB
-    pub ab: ff32_3,
-
-    /// dot(AB, AB)
-    pub ab_abs2: ff32,
-
-    /// vector AC
-    pub ac: ff32_3,
-
-    /// dot(AC, AC)
-    pub ac_abs2: ff32,
-
-    /// unit-length normal to triangle
-    pub n1: ff32_3,
+    /// transformation matrix into the (AB, AC, N1) space,
+    /// where A, B, C are vertices, N1 is the unit normal
+    pub m_abc: ff32_3x3,
 
     /// indirection to fit in a cache line
     pub meta: Box<TriangleMeta>,
@@ -37,23 +26,11 @@ pub struct Triangle {
 
 #[derive(Debug)]
 pub struct TriangleMeta {
-    /// normal in A
-    pub n_a: ff32_3,
+    /// cols are vertex normals; length == curvature
+    pub abc_nc: ff32_3x3,
 
-    /// normal in B
-    pub n_b: ff32_3,
-
-    /// normal in C
-    pub n_c: ff32_3,
-
-    pub a_u: ff32,
-    pub a_v: ff32,
-
-    pub b_u: ff32,
-    pub b_v: ff32,
-
-    pub c_u: ff32,
-    pub c_v: ff32,
+    /// cols are vertex UV
+    pub abc_uv: ff32_3x3,
 }
 
 #[derive(Debug)]
@@ -64,23 +41,20 @@ pub struct RayIntersection<'a> {
     /// distance from origin along the ray
     pub d: ff32,
 
-    /// intersection point P
-    pub p: ff32_3,
-
-    /// projection of AP on AB
-    pub ap_ab: ff32,
-
-    /// projection of AP on AC
-    pub ap_ac: ff32,
+    /// intersection point in (AB, AC, N1) space
+    pub p_abc: ff32_3,
 }
 
 #[derive(Debug)]
 pub struct InterpolatedMeta {
-    /// interpolated normal
-    pub ni: ff32_3,
+    /// weights of vertices for linear interpolation
+    pub w: ff32_3,
 
-    pub u: ff32,
-    pub v: ff32,
+    /// interpolated normal
+    pub n1_p: ff32_3,
+
+    /// UV coords of the intersection point
+    pub p_uv: ff32_3,
 }
 
 pub fn cast_ray_through_triangles<'a>(
@@ -88,59 +62,44 @@ pub fn cast_ray_through_triangles<'a>(
     triangles: &'a [Triangle],
     max_d: ff32,
 ) -> Option<RayIntersection<'a>> {
+    const EPS: ff32 = ff32(1.0e-4);
+
     let mut cur_d = max_d;
     let mut cur_tri: Option<&Triangle> = None;
-
-    let mut cur_p = ff32_3::zero();
-
-    let mut cur_ap_ab = ff32(0.0);
-    let mut cur_ap_ac = ff32(0.0);
+    let mut cur_p_abc = ff32_3::zero();
 
     for tri in triangles {
-        let nd = ff32_3::dot(tri.n1, ray.dir1);
+        let src_abc = tri.m_abc * (ray.src - tri.a);
+        let dir_abc = tri.m_abc * ray.dir1;
 
-        if unlikely(nd == ff32(0.0)) {
+        if src_abc.z() < EPS || dir_abc.z() > EPS {
             continue;
         }
 
-        let d = ff32_3::dot(tri.a - ray.src, tri.n1);
+        let d = -src_abc.z() / dir_abc.z();
 
-        if unlikely(d < ff32(0.0)) {
+        if d >= cur_d {
             continue;
         }
 
-        if d < cur_d {
-            let p = ray.src + ray.dir1 * cur_d;
-            let ap_ab = ff32_3::dot(p - tri.a, tri.ab) / tri.ab_abs2;
-            let ap_ac = ff32_3::dot(p - tri.a, tri.ac) / tri.ac_abs2;
+        let p_abc = src_abc + dir_abc * d;
 
-            if likely(ap_ab < ff32(0.0)) {
-                continue;
-            }
-
-            if likely(ap_ac < ff32(0.0)) {
-                continue;
-            }
-
-            if likely(ap_ab + ap_ac > ff32(1.0)) {
-                continue;
-            }
-
-            cur_d = d;
-            cur_tri = Some(tri);
-            cur_p = p;
-            cur_ap_ab = ap_ab;
-            cur_ap_ac = ap_ac;
+        if likely(
+            p_abc.x() < -EPS || p_abc.y() < -EPS || p_abc.x() + p_abc.y() > ff32(1.0) + EPS,
+        ) {
+            continue;
         }
+
+        cur_d = d;
+        cur_tri = Some(tri);
+        cur_p_abc = p_abc;
     }
 
     if let Some(cur_tri) = cur_tri {
         Some(RayIntersection {
             tri: cur_tri,
             d: cur_d,
-            p: cur_p,
-            ap_ab: cur_ap_ab,
-            ap_ac: cur_ap_ac,
+            p_abc: cur_p_abc,
         })
     } else {
         None
@@ -148,27 +107,15 @@ pub fn cast_ray_through_triangles<'a>(
 }
 
 pub fn interpolate_triangle_meta<'a>(isec: &'a RayIntersection<'a>) -> InterpolatedMeta {
-    // weights
-    let wa = ff32(1.0) - isec.ap_ab - isec.ap_ac;
-    let wb = isec.ap_ab;
-    let wc = isec.ap_ac;
-
-    // weighted vertex normals
-    let wn_a = isec.tri.meta.n_a * wa;
-    let wn_b = isec.tri.meta.n_b * wb;
-    let wn_c = isec.tri.meta.n_c * wc;
-
-    let wu_a = isec.tri.meta.a_u * wa;
-    let wu_b = isec.tri.meta.b_u * wb;
-    let wu_c = isec.tri.meta.c_u * wc;
-
-    let wv_a = isec.tri.meta.a_v * wa;
-    let wv_b = isec.tri.meta.b_v * wb;
-    let wv_c = isec.tri.meta.c_v * wc;
+    let w = ff32_3::new(
+        ff32(1.0) - isec.p_abc.x() - isec.p_abc.y(),
+        isec.p_abc.x(),
+        isec.p_abc.y(),
+    );
 
     InterpolatedMeta {
-        ni: wn_a + wn_b + wn_c,
-        u: wu_a + wu_b + wu_c,
-        v: wv_a + wv_b + wv_c,
+        w,
+        n1_p: (isec.tri.meta.abc_nc * w).norm(),
+        p_uv: isec.tri.meta.abc_uv * w,
     }
 }

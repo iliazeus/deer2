@@ -51,11 +51,8 @@ impl<T: Num> Display for Vector3<T> {
 impl<T: Num> Neg for Vector3<T> {
     type Output = Self;
     #[inline(always)]
-    fn neg(mut self) -> Self::Output {
-        self.0 = -self.0;
-        self.1 = -self.1;
-        self.2 = -self.2;
-        self
+    fn neg(self) -> Self::Output {
+        Self(-self.0, -self.1, -self.2)
     }
 }
 
@@ -92,18 +89,16 @@ impl<T: Num> SubAssign<Self> for Vector3<T> {
 impl<T: Num> Mul<T> for Vector3<T> {
     type Output = Self;
     #[inline(always)]
-    fn mul(mut self, rhs: T) -> Self {
-        do_3!(self.i *= rhs);
-        self
+    fn mul(self, rhs: T) -> Self {
+        self_from_3!(self.i * rhs)
     }
 }
 
 impl<T: Num> Div<T> for Vector3<T> {
     type Output = Self;
     #[inline(always)]
-    fn div(mut self, rhs: T) -> Self {
-        do_3!(self.i /= rhs);
-        self
+    fn div(self, rhs: T) -> Self {
+        self_from_3!(self.i / rhs)
     }
 }
 
@@ -137,21 +132,21 @@ impl<T: Num> One for Vector3<T> {
 
 impl<T: Num> Vector3<T> {
     #[inline(always)]
-    pub fn e0() -> Self {
+    pub fn ex() -> Self {
         let _0 = T::zero();
         let _1 = T::one();
         Self(_1, _0, _0)
     }
 
     #[inline(always)]
-    pub fn e1() -> Self {
+    pub fn ey() -> Self {
         let _0 = T::zero();
         let _1 = T::one();
         Self(_0, _1, _0)
     }
 
     #[inline(always)]
-    pub fn e2() -> Self {
+    pub fn ez() -> Self {
         let _0 = T::zero();
         let _1 = T::one();
         Self(_0, _0, _1)
@@ -184,6 +179,12 @@ impl<T: Num> Vector3<T> {
             a.2 * b.0 - a.0 * b.2,
             a.0 * b.1 - a.1 * b.0,
         )
+    }
+
+    /// a dot b cross c
+    #[inline(always)]
+    pub fn triple(a: Self, b: Self, c: Self) -> T {
+        Self::dot(a, Self::cross(b, c))
     }
 }
 

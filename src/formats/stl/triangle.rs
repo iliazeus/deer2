@@ -57,35 +57,24 @@ impl StlTriangle {
     }
 
     pub fn to_cast_triangle(&self) -> cast::Triangle {
-        let n = if self.n != ff32_3::zero() {
-            self.n
+        let n1 = if self.n != ff32_3::zero() {
+            self.n.norm()
         } else {
-            ff32_3::cross(self.b - self.a, self.c - self.a)
+            ff32_3::cross(self.b - self.a, self.c - self.a).norm()
         };
 
         cast::Triangle {
             a: self.a,
-            ab: self.b - self.a,
-            ab_abs2: (self.b - self.a).abs2(),
-            ac: self.c - self.a,
-            ac_abs2: (self.c - self.a).abs2(),
-            n1: n / n.abs(),
+            m_abc: ff32_3x3::from_cols(self.b - self.a, self.c - self.a, n1)
+                .inv()
+                .unwrap(),
 
             meta: Box::new(cast::TriangleMeta {
-                // STL has no vertex normals
-                n_a: n / n.abs(),
-                n_b: n / n.abs(),
-                n_c: n / n.abs(),
+                /// STL has no vertex normals
+                abc_nc: ff32_3x3::from_cols(n1, n1, n1),
 
-                // STL has no UV mapping info
-                a_u: ff32(0.0),
-                a_v: ff32(0.0),
-
-                b_u: ff32(1.0),
-                b_v: ff32(0.0),
-
-                c_u: ff32(0.0),
-                c_v: ff32(1.0),
+                /// STL has no UV mapping info
+                abc_uv: ff32_3x3::one(),
             }),
         }
     }

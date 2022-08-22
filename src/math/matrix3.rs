@@ -114,7 +114,7 @@ impl<T: Num> Zero for Matrix3<T> {
 impl<T: Num> One for Matrix3<T> {
     #[inline(always)]
     fn one() -> Self {
-        Self(Vector3::e0(), Vector3::e1(), Vector3::e2())
+        Self(Vector3::ex(), Vector3::ey(), Vector3::ez())
     }
 }
 
@@ -159,7 +159,7 @@ impl<T: Num> Matrix3<T> {
     #[inline(always)]
     pub fn tr(&self) -> Self {
         Self(
-            Vector3(self.0 .0, self.1 .0, self.2 .1),
+            Vector3(self.0 .0, self.1 .0, self.2 .0),
             Vector3(self.0 .1, self.1 .1, self.2 .1),
             Vector3(self.0 .2, self.1 .2, self.2 .2),
         )

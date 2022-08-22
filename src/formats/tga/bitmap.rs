@@ -75,6 +75,25 @@ impl From<u8> for ImageType {
 }
 
 impl TgaBitmap {
+    pub fn width(&self) -> usize {
+        self.width as usize
+    }
+
+    pub fn height(&self) -> usize {
+        self.height as usize
+    }
+
+    pub fn get(&self, pixel_x: usize, pixel_y: usize) -> u8_rgb {
+        self.pixels[pixel_y * self.width() + pixel_x]
+    }
+
+    pub fn get_mut(&mut self, pixel_x: usize, pixel_y: usize) -> &mut u8_rgb {
+        let width = self.width();
+        &mut self.pixels[pixel_y * width + pixel_x]
+    }
+}
+
+impl TgaBitmap {
     pub fn with_dimensions(width: usize, height: usize, fill: u8_rgb) -> Self {
         TgaBitmap {
             id: String::new(),
@@ -123,17 +142,17 @@ impl TgaBitmap {
 
 impl TgaBitmap {
     fn read_pixel_from<R: Read>(reader: &mut R) -> Result<u8_rgb, io::Error> {
-        let r = reader.read_u8()?;
-        let g = reader.read_u8()?;
         let b = reader.read_u8()?;
+        let g = reader.read_u8()?;
+        let r = reader.read_u8()?;
 
         Ok(u8_rgb(r, g, b))
     }
 
     fn write_pixel_to<W: Write>(pixel: &u8_rgb, writer: &mut W) -> Result<(), io::Error> {
-        writer.write_u8(pixel.0)?;
-        writer.write_u8(pixel.1)?;
         writer.write_u8(pixel.2)?;
+        writer.write_u8(pixel.1)?;
+        writer.write_u8(pixel.0)?;
 
         Ok(())
     }

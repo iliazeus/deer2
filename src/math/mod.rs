@@ -8,6 +8,7 @@ mod matrix3;
 mod num;
 mod random;
 mod small_ratio;
+mod vector2;
 mod vector3;
 
 pub use fast_f32::*;
@@ -16,4 +17,5 @@ pub use matrix3::*;
 pub use num::*;
 pub use random::*;
 pub use small_ratio::*;
+pub use vector2::*;
 pub use vector3::*;
