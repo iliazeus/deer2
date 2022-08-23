@@ -12,12 +12,12 @@ use rand::SeedableRng;
 extern crate test;
 use test::{black_box, Bencher};
 
-const UTAH_TEAPOT: &[u8] = include_bytes!("../data/stl/utah_teapot.stl");
+const STANFORD_BUNNY: &[u8] = include_bytes!("../data/stl/stanford_bunny.stl");
 const RESOLUTION: usize = 100;
 
-fn cast_teapot_generic<'a, C: Castable<'a, ff32>>(b: &mut Bencher, castable: &'a C) {
-    let pov = ff32_3::new(ff32(0.0), ff32(0.0), ff32(26.0));
-    let screen_00 = ff32_3::new(ff32(-0.5), ff32(0.5), ff32(25.0));
+fn cast_bunny_generic<'a, C: Castable<'a, ff32>>(b: &mut Bencher, castable: &'a C) {
+    let pov = ff32_3::new(ff32(0.0), ff32(0.0), ff32(306.0));
+    let screen_00 = ff32_3::new(ff32(-0.5), ff32(0.5), ff32(305.0));
     let screen_step = ff32(1.0) / ff32::from_usize(RESOLUTION);
 
     b.iter(|| {
@@ -45,30 +45,30 @@ fn cast_teapot_generic<'a, C: Castable<'a, ff32>>(b: &mut Bencher, castable: &'a
 }
 
 #[bench]
-fn cast_teapot_triangle_list(b: &mut Bencher) {
-    let model = StlModel::read_from(&mut Cursor::new(UTAH_TEAPOT)).unwrap();
+fn cast_bunny_triangle_list(b: &mut Bencher) {
+    let model = StlModel::read_from(&mut Cursor::new(STANFORD_BUNNY)).unwrap();
     let triangles = model.to_triangle_list();
 
-    cast_teapot_generic(b, &triangles)
+    cast_bunny_generic(b, &triangles)
 }
 
 #[bench]
-fn cast_teapot_kd_tree(b: &mut Bencher) {
-    let model = StlModel::read_from(&mut Cursor::new(UTAH_TEAPOT)).unwrap();
+fn cast_bunny_kd_tree(b: &mut Bencher) {
+    let model = StlModel::read_from(&mut Cursor::new(STANFORD_BUNNY)).unwrap();
     let triangles = model.to_triangle_list();
 
     let tree = BspTree::build_kd(&triangles.triangles);
 
-    cast_teapot_generic(b, &tree)
+    cast_bunny_generic(b, &tree)
 }
 
 #[bench]
-fn cast_teapot_bsp_tree(b: &mut Bencher) {
-    let model = StlModel::read_from(&mut Cursor::new(UTAH_TEAPOT)).unwrap();
+fn cast_bunny_bsp_tree(b: &mut Bencher) {
+    let model = StlModel::read_from(&mut Cursor::new(STANFORD_BUNNY)).unwrap();
     let triangles = model.to_triangle_list();
 
     let mut rng = SmallRng::seed_from_u64(117);
     let tree = BspTree::build_tri_randomized(&triangles.triangles, &mut rng, 1);
 
-    cast_teapot_generic(b, &tree)
+    cast_bunny_generic(b, &tree)
 }

@@ -13,10 +13,10 @@ fn main() {
     // let in_filename = std::env::args().nth(1).unwrap();
     // let out_filename = std::env::args().nth(2).unwrap();
 
-    let in_filename = "./src/data/stl/stanford_bunny.stl";
+    let in_filename = "./data/stl/stanford_bunny.stl";
     let out_filename = "./stanford_bunny.tga";
 
-    // let in_filename = "./src/data/stl/utah_teapot.stl";
+    // let in_filename = "./data/stl/utah_teapot.stl";
     // let out_filename = "./utah_teapot.tga";
 
     let in_file = File::options().read(true).open(in_filename).unwrap();

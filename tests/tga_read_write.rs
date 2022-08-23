@@ -1,7 +1,8 @@
-use deer2::data::tga::*;
 use deer2::formats::tga::*;
 
 use std::io::Cursor;
+
+const LENA: &[u8] = include_bytes!("../data/tga/lena.tga");
 
 #[test]
 fn lena() {

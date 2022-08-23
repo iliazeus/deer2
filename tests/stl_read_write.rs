@@ -1,7 +1,8 @@
-use deer2::data::stl::*;
 use deer2::formats::stl::*;
 
 use std::io::Cursor;
+
+const UTAH_TEAPOT: &[u8] = include_bytes!("../data/stl/utah_teapot.stl");
 
 #[test]
 fn utah_teapot() {
