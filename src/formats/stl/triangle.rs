@@ -56,8 +56,8 @@ impl StlTriangle {
         Ok(())
     }
 
-    pub fn to_cast_triangle(&self) -> cast::Triangle {
-        let n1 = if self.n != ff32_3::zero() {
+    pub fn to_cast_triangle(&self) -> cast::Triangle<ff32> {
+        let n1 = if self.n != ff32_3::ZERO {
             self.n.norm()
         } else {
             ff32_3::cross(self.b - self.a, self.c - self.a).norm()
@@ -78,7 +78,7 @@ impl StlTriangle {
                 abc_nc: ff32_3x3::from_cols(n1, n1, n1),
 
                 /// STL has no UV mapping info
-                abc_uv: ff32_3x3::one(),
+                abc_uv: ff32_3x3::ONE,
             }),
         }
     }

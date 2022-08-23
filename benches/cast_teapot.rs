@@ -13,7 +13,7 @@ use test::{black_box, Bencher};
 #[bench]
 fn cast_teapot_naive(b: &mut Bencher) {
     let model = StlModel::read_from(&mut Cursor::new(UTAH_TEAPOT)).unwrap();
-    let triangles = model.into_cast_triangles();
+    let triangles = model.to_triangle_list();
 
     const N: usize = 100;
 
@@ -37,7 +37,7 @@ fn cast_teapot_naive(b: &mut Bencher) {
                     dir1: (screen_p - pov).norm(),
                 };
 
-                let isec = cast_ray_through_triangles(ray, &triangles, ff32(2000.0));
+                let isec = triangles.cast_ray(ray, ff32(2000.0));
 
                 black_box(isec);
             }

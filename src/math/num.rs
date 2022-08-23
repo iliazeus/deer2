@@ -19,8 +19,11 @@ pub trait Num:
     + Zero
     + One
 {
-    fn pi() -> Self;
+    const EPS: Self;
+    const PI: Self;
+
     fn from_usize(x: usize) -> Self;
+
     fn abs(self) -> Self;
     fn sqrt(self) -> Self;
     fn sin(self) -> Self;
@@ -28,34 +31,26 @@ pub trait Num:
 }
 
 pub trait Zero {
-    fn zero() -> Self;
+    const ZERO: Self;
 }
 
 pub trait One {
-    fn one() -> Self;
+    const ONE: Self;
 }
 
 macro_rules! impl_float {
-    ($T:ident) => {
+    ($T:ident, eps = $eps:tt) => {
         impl Zero for $T {
-            #[inline(always)]
-            fn zero() -> Self {
-                0 as $T
-            }
+            const ZERO: Self = 0 as $T;
         }
 
         impl One for $T {
-            #[inline(always)]
-            fn one() -> Self {
-                1 as $T
-            }
+            const ONE: Self = 1 as $T;
         }
 
         impl Num for $T {
-            #[inline(always)]
-            fn pi() -> Self {
-                std::$T::consts::PI
-            }
+            const EPS: Self = $eps;
+            const PI: Self = std::$T::consts::PI;
 
             #[inline(always)]
             fn from_usize(x: usize) -> Self {
@@ -85,5 +80,5 @@ macro_rules! impl_float {
     };
 }
 
-impl_float!(f32);
-impl_float!(f64);
+impl_float!(f32, eps = 1e-4);
+impl_float!(f64, eps = 1e-6);

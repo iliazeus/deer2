@@ -29,9 +29,8 @@ impl SmallRatio64 {
 }
 
 impl Num for SmallRatio64 {
-    fn pi() -> Self {
-        unimplemented!()
-    }
+    const EPS: Self = Self(1, 100);
+    const PI: Self = Self(355, 113);
 
     fn from_usize(x: usize) -> Self {
         Self(x as i64, 1)
@@ -77,15 +76,11 @@ impl Display for SmallRatio64 {
 }
 
 impl Zero for SmallRatio64 {
-    fn zero() -> Self {
-        SmallRatio64(0, 1)
-    }
+    const ZERO: Self = Self(0, 1);
 }
 
 impl One for SmallRatio64 {
-    fn one() -> Self {
-        SmallRatio64(1, 1)
-    }
+    const ONE: Self = Self(1, 1);
 }
 
 impl PartialOrd for SmallRatio64 {

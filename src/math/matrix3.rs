@@ -105,17 +105,11 @@ impl<T: Num> DivAssign<T> for Matrix3<T> {
 }
 
 impl<T: Num> Zero for Matrix3<T> {
-    #[inline(always)]
-    fn zero() -> Self {
-        self_from_3!(Vector3::<T>::zero())
-    }
+    const ZERO: Self = self_from_3!(Vector3::ZERO);
 }
 
 impl<T: Num> One for Matrix3<T> {
-    #[inline(always)]
-    fn one() -> Self {
-        Self(Vector3::ex(), Vector3::ey(), Vector3::ez())
-    }
+    const ONE: Self = Self(Vector3::EX, Vector3::EY, Vector3::EZ);
 }
 
 impl<T: Num> Mul<Matrix3<T>> for Matrix3<T> {
@@ -179,9 +173,9 @@ impl<T: Num> Matrix3<T> {
 impl<T: Num> Matrix3<T> {
     #[inline(always)]
     pub fn det(&self) -> T {
-        let d00 = T::zero() + (self.1 .1 * self.2 .2 - self.1 .2 * self.2 .1);
-        let d01 = T::zero() - (self.1 .0 * self.2 .2 - self.1 .2 * self.2 .0);
-        let d02 = T::zero() + (self.0 .0 * self.1 .1 - self.0 .1 * self.1 .0);
+        let d00 = T::ZERO + (self.1 .1 * self.2 .2 - self.1 .2 * self.2 .1);
+        let d01 = T::ZERO - (self.1 .0 * self.2 .2 - self.1 .2 * self.2 .0);
+        let d02 = T::ZERO + (self.0 .0 * self.1 .1 - self.0 .1 * self.1 .0);
 
         let det = self.0 .0 * d00 + self.0 .1 * d01 + self.0 .2 * d02;
 
@@ -190,21 +184,21 @@ impl<T: Num> Matrix3<T> {
 
     #[inline(always)]
     pub fn inv(&self) -> Option<Self> {
-        let d00 = T::zero() + (self.1 .1 * self.2 .2 - self.1 .2 * self.2 .1);
-        let d01 = T::zero() - (self.1 .0 * self.2 .2 - self.1 .2 * self.2 .0);
-        let d02 = T::zero() + (self.1 .0 * self.2 .1 - self.1 .1 * self.2 .0);
+        let d00 = T::ZERO + (self.1 .1 * self.2 .2 - self.1 .2 * self.2 .1);
+        let d01 = T::ZERO - (self.1 .0 * self.2 .2 - self.1 .2 * self.2 .0);
+        let d02 = T::ZERO + (self.1 .0 * self.2 .1 - self.1 .1 * self.2 .0);
 
-        let d10 = T::zero() - (self.0 .1 * self.2 .2 - self.0 .2 * self.2 .1);
-        let d11 = T::zero() + (self.0 .0 * self.2 .2 - self.0 .2 * self.2 .0);
-        let d12 = T::zero() - (self.0 .0 * self.2 .1 - self.0 .1 * self.2 .0);
+        let d10 = T::ZERO - (self.0 .1 * self.2 .2 - self.0 .2 * self.2 .1);
+        let d11 = T::ZERO + (self.0 .0 * self.2 .2 - self.0 .2 * self.2 .0);
+        let d12 = T::ZERO - (self.0 .0 * self.2 .1 - self.0 .1 * self.2 .0);
 
-        let d20 = T::zero() + (self.0 .1 * self.1 .2 - self.0 .2 * self.1 .1);
-        let d21 = T::zero() - (self.0 .0 * self.1 .2 - self.0 .2 * self.1 .0);
-        let d22 = T::zero() + (self.0 .0 * self.1 .1 - self.0 .1 * self.1 .0);
+        let d20 = T::ZERO + (self.0 .1 * self.1 .2 - self.0 .2 * self.1 .1);
+        let d21 = T::ZERO - (self.0 .0 * self.1 .2 - self.0 .2 * self.1 .0);
+        let d22 = T::ZERO + (self.0 .0 * self.1 .1 - self.0 .1 * self.1 .0);
 
         let det = self.0 .0 * d00 + self.0 .1 * d01 + self.0 .2 * d02;
 
-        if det == T::zero() {
+        if det == T::ZERO {
             return None;
         }
 
@@ -238,10 +232,10 @@ mod tests {
 
     #[quickcheck]
     fn matrix_multiplication(a: r64_3x3, b: r64_3x3, c: r64_3x3, alpha: r64) -> bool {
-        (a * r64_3x3::one() == a)
-            && (r64_3x3::one() * a == a)
-            && (a * r64_3x3::zero() == r64_3x3::zero())
-            && (r64_3x3::zero() * a == r64_3x3::zero())
+        (a * r64_3x3::ONE == a)
+            && (r64_3x3::ONE * a == a)
+            && (a * r64_3x3::ZERO == r64_3x3::ZERO)
+            && (r64_3x3::ZERO * a == r64_3x3::ZERO)
             && ((a * alpha) * b == (a * b) * alpha)
             && (a * (b * alpha) == (a * b) * alpha)
             && ((a * b) * c == a * (b * c))
@@ -249,15 +243,15 @@ mod tests {
 
     #[quickcheck]
     fn vector_multiplication(m: r64_3x3, u: r64_3) -> bool {
-        (r64_3x3::one() * u == u)
-            && (r64_3x3::zero() * u == r64_3::zero())
-            && (m * r64_3::zero() == r64_3::zero())
+        (r64_3x3::ONE * u == u)
+            && (r64_3x3::ZERO * u == r64_3::ZERO)
+            && (m * r64_3::ZERO == r64_3::ZERO)
     }
 
     #[quickcheck]
     fn inversion(m: r64_3x3) -> bool {
-        (r64_3x3::one().inv() == Some(r64_3x3::one()))
-            && (r64_3x3::zero().inv() == None)
+        (r64_3x3::ONE.inv() == Some(r64_3x3::ONE))
+            && (r64_3x3::ZERO.inv() == None)
             && (m.inv().is_none() || m.inv().unwrap().inv().unwrap() == m)
     }
 }

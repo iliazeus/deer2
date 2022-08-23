@@ -33,35 +33,3 @@ macro_rules! self_from_3 {
         Self($arg, $arg, $arg)
     };
 }
-
-macro_rules! do_2 {
-    ($lhs:ident.i $op:tt $rhs:ident) => {
-        $lhs.0 $op $rhs;
-        $lhs.1 $op $rhs;
-   };
-
-    ($lhs:ident.i $op:tt $rhs:ident.i) => {
-        $lhs.0 $op $rhs.0;
-        $lhs.1 $op $rhs.1;
-    };
-}
-
-macro_rules! self_from_2 {
-    ($lhs:ident.i $op:tt $rhs:ident) => {
-        Self(
-            $lhs.0 $op $rhs,
-            $lhs.1 $op $rhs,
-        )
-    };
-
-    ($lhs:ident.i $op:tt $rhs:ident.i) => {
-        Self(
-            $lhs.0 $op $rhs.0,
-            $lhs.1 $op $rhs.1,
-        )
-    };
-
-    ($arg:expr) => {
-        Self($arg, $arg)
-    };
-}

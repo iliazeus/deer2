@@ -31,11 +31,11 @@ fn main() {
     let mut out_file = BufWriter::with_capacity(8 * 1024 * 1024, out_file);
 
     let model = StlModel::read_from(&mut in_file).unwrap();
-    let triangles = model.into_cast_triangles();
+    let triangles = model.to_triangle_list();
 
     let mut rng = SmallRng::seed_from_u64(117);
-    let bsp_tree = BspTree::build_tri_randomized(&triangles, &mut rng, 16);
-    // let bsp_tree = BspTree::build_kd(&triangles);
+    let bsp_tree = BspTree::build_tri_randomized(&triangles.triangles, &mut rng, 16);
+    // let bsp_tree = BspTree::build_kd(&triangles.triangles);
 
     let mut bitmap = TgaBitmap::with_dimensions(512, 512, u8_rgb(0, 0, 0));
     // let mut bitmap = TgaBitmap::with_dimensions(64, 64, u8_rgb(0, 0, 0));
@@ -85,7 +85,7 @@ fn main() {
                 //     ((isec.d - ff32(1.0)) * ff32(100.0)).0 as u8,
                 // );
 
-                let isec_meta = interpolate_triangle_meta(&isec);
+                let isec_meta = isec.interpolate_meta();
                 let light_dot = ff32_3::dot(light_dir1, isec_meta.n1_p);
 
                 let mut light = ff32(0.2);
@@ -97,8 +97,7 @@ fn main() {
                         dir1: light_dir1,
                     };
 
-                    // let light_isec =
-                    //     cast_ray_through_triangles(light_ray, &triangles, ff32(1000.0));
+                    // let light_isec = triangles.cast_ray(light_ray, ff32(1000.0));
                     let light_isec = bsp_tree.cast_ray(light_ray, ff32(2000.0));
                     if light_isec.is_none() {
                         light += ff32(0.8 * light_dot.0.clamp(0.0, 1.0))

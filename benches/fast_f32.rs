@@ -6,7 +6,7 @@ extern crate test;
 use test::Bencher;
 
 fn generic_bench<N: Num, const SIZE: usize>() -> N {
-    let mut accum = N::zero();
+    let mut accum = N::ZERO;
 
     for i in 0..SIZE {
         let v1 = Vector3(

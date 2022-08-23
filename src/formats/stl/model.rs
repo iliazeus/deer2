@@ -1,4 +1,5 @@
 use crate::cast;
+use crate::math::*;
 
 use std::io;
 use std::io::{Read, Write};
@@ -46,10 +47,13 @@ impl StlModel {
         Ok(())
     }
 
-    pub fn into_cast_triangles(self) -> Vec<cast::Triangle> {
-        self.triangles
+    pub fn to_triangle_list(&self) -> cast::TriangleList<ff32> {
+        let triangles: Vec<cast::Triangle<ff32>> = self
+            .triangles
             .iter()
             .map(|tri| tri.to_cast_triangle())
-            .collect()
+            .collect();
+
+        cast::TriangleList::from(triangles)
     }
 }

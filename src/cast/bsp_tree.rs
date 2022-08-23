@@ -1,4 +1,4 @@
-use std::intrinsics::{likely, unlikely};
+use std::intrinsics::likely;
 
 use crate::math::*;
 
@@ -7,30 +7,32 @@ use rand::prelude::*;
 
 use super::*;
 
-pub struct BspTree<'a> {
-    root: Option<Box<Node<'a>>>,
+pub struct BspTree<'a, N: Num> {
+    root: Option<Box<Node<'a, N>>>,
 }
 
-struct Node<'a> {
-    tris: Vec<&'a Triangle>,
-    neg: Option<Box<Node<'a>>>,
-    pos: Option<Box<Node<'a>>>,
-    origin: ff32_3,
-    mat: ff32_3x3,
+struct Node<'a, N: Num> {
+    tris: Vec<&'a Triangle<N>>,
+    neg: Option<Box<Node<'a, N>>>,
+    pos: Option<Box<Node<'a, N>>>,
+    origin: Vector3<N>,
+    mat: Matrix3<N>,
 }
 
-impl<'a> Node<'a> {
-    fn partition(mut slice: &mut [&'a Triangle], origin: ff32_3, mat: ff32_3x3) -> (usize, usize) {
+impl<'a, N: Num> Node<'a, N> {
+    fn partition(
+        mut slice: &mut [&'a Triangle<N>],
+        origin: Vector3<N>,
+        mat: Matrix3<N>,
+    ) -> (usize, usize) {
         // TODO: optimize
-
-        const EPS: ff32 = ff32(1.0e-4);
 
         let i_neg = partition(&mut slice[..], |tri| {
             let a = mat * (tri.meta.a - origin);
             let b = mat * (tri.meta.b - origin);
             let c = mat * (tri.meta.c - origin);
 
-            a.z() < -EPS && b.z() < -EPS && c.z() < -EPS
+            a.z() < -N::EPS && b.z() < -N::EPS && c.z() < -N::EPS
         });
 
         slice = &mut slice[i_neg..];
@@ -41,15 +43,15 @@ impl<'a> Node<'a> {
                 let b = mat * (tri.meta.b - origin);
                 let c = mat * (tri.meta.c - origin);
 
-                !(a.z() > EPS && b.z() > EPS && c.z() > EPS)
+                !(a.z() > N::EPS && b.z() > N::EPS && c.z() > N::EPS)
             });
 
         (i_neg, i_pos)
     }
 }
 
-impl<'a> Node<'a> {
-    fn build_tri(slice: &mut [&'a Triangle]) -> (usize, Option<Box<Self>>) {
+impl<'a, N: Num> Node<'a, N> {
+    fn build_tri(slice: &mut [&'a Triangle<N>]) -> (usize, Option<Box<Self>>) {
         if slice.is_empty() {
             return (0, None);
         }
@@ -89,16 +91,16 @@ impl<'a> Node<'a> {
     }
 }
 
-impl<'a> BspTree<'a> {
+impl<'a, N: Num> BspTree<'a, N> {
     pub fn build_tri_randomized<RNG: Rng>(
-        triangles: &'a [Triangle],
+        triangles: &'a [Triangle<N>],
         rng: &mut RNG,
         n_retries: usize,
     ) -> Self {
-        let mut triangles: Vec<&'a Triangle> = triangles.iter().collect();
+        let mut triangles: Vec<&'a Triangle<N>> = triangles.iter().collect();
 
         let mut min_height = triangles.len() + 1;
-        let mut best_root: Option<Box<Node>> = None;
+        let mut best_root: Option<Box<Node<'a, N>>> = None;
 
         for _i in 0..n_retries {
             triangles.shuffle(rng);
@@ -114,58 +116,44 @@ impl<'a> BspTree<'a> {
     }
 }
 
-impl<'a> Node<'a> {
-    fn get_kd_mat(axis: usize) -> ff32_3x3 {
-        const _0: ff32 = ff32(0.0);
-        const _1: ff32 = ff32(1.0);
+impl<'a, N: Num> Node<'a, N> {
+    fn get_kd_mat(axis: usize) -> Matrix3<N> {
+        let _0 = N::ZERO;
+        let _1 = N::ONE;
 
         match axis % 3 {
-            0 => ff32_3x3::from_rows(
-                ff32_3::new(_0, _1, _0),
-                ff32_3::new(_0, _0, _1),
-                ff32_3::new(_1, _0, _0),
-            ),
-
-            1 => ff32_3x3::from_rows(
-                ff32_3::new(_0, _0, _1),
-                ff32_3::new(_1, _0, _0),
-                ff32_3::new(_0, _1, _0),
-            ),
-
-            2 => ff32_3x3::from_rows(
-                ff32_3::new(_1, _0, _0),
-                ff32_3::new(_0, _1, _0),
-                ff32_3::new(_0, _0, _1),
-            ),
+            0 => Matrix3::from_rows(Vector3::EY, Vector3::EZ, Vector3::EX),
+            1 => Matrix3::from_rows(Vector3::EZ, Vector3::EX, Vector3::EY),
+            2 => Matrix3::from_rows(Vector3::EX, Vector3::EY, Vector3::EZ),
 
             _ => unreachable!(),
         }
     }
 
-    fn get_bounds(triangles: &[&'a Triangle]) -> (ff32_3, ff32_3) {
+    fn get_bounds(triangles: &[&'a Triangle<N>]) -> (Vector3<N>, Vector3<N>) {
         let mut min_coords = triangles[0].a;
         let mut max_coords = triangles[0].a;
 
         for tri in triangles {
-            min_coords = ff32_3::min_coords(min_coords, tri.meta.a);
-            min_coords = ff32_3::min_coords(min_coords, tri.meta.b);
-            min_coords = ff32_3::min_coords(min_coords, tri.meta.c);
+            min_coords = Vector3::min_coords(min_coords, tri.meta.a);
+            min_coords = Vector3::min_coords(min_coords, tri.meta.b);
+            min_coords = Vector3::min_coords(min_coords, tri.meta.c);
 
-            max_coords = ff32_3::max_coords(max_coords, tri.meta.a);
-            max_coords = ff32_3::max_coords(max_coords, tri.meta.b);
-            max_coords = ff32_3::max_coords(max_coords, tri.meta.c);
+            max_coords = Vector3::max_coords(max_coords, tri.meta.a);
+            max_coords = Vector3::max_coords(max_coords, tri.meta.b);
+            max_coords = Vector3::max_coords(max_coords, tri.meta.c);
         }
 
         (min_coords, max_coords)
     }
 
-    fn build_kd(slice: &mut [&'a Triangle], axis: usize) -> Option<Box<Self>> {
+    fn build_kd(slice: &mut [&'a Triangle<N>], axis: usize) -> Option<Box<Self>> {
         if slice.is_empty() {
             return None;
         }
 
         let (min_coords, max_coords) = Self::get_bounds(slice);
-        let origin = (min_coords + max_coords) / ff32(2.0);
+        let origin = (min_coords + max_coords) / (N::ONE + N::ONE);
         let mat = Self::get_kd_mat(axis);
 
         let (i_neg, i_pos) = Self::partition(slice, origin, mat);
@@ -183,9 +171,9 @@ impl<'a> Node<'a> {
     }
 }
 
-impl<'a> BspTree<'a> {
-    pub fn build_kd(triangles: &'a [Triangle]) -> Self {
-        let mut triangles: Vec<&'a Triangle> = triangles.iter().collect();
+impl<'a, N: Num> BspTree<'a, N> {
+    pub fn build_kd(triangles: &'a [Triangle<N>]) -> Self {
+        let mut triangles: Vec<&'a Triangle<N>> = triangles.iter().collect();
 
         Self {
             root: Node::build_kd(&mut triangles, 0),
@@ -193,19 +181,17 @@ impl<'a> BspTree<'a> {
     }
 }
 
-impl<'a> Node<'a> {
-    fn cast_through_own(&'a self, ray: Ray, max_d: ff32) -> Option<RayIntersection<'a>> {
-        const EPS: ff32 = ff32(1.0e-4);
-
+impl<'a, N: Num> Node<'a, N> {
+    fn cast_through_own(&'a self, ray: Ray<N>, max_d: N) -> Option<RayIntersection<'a, N>> {
         let mut cur_d = max_d;
-        let mut cur_tri: Option<&Triangle> = None;
-        let mut cur_p_abc = ff32_3::zero();
+        let mut cur_tri: Option<&Triangle<N>> = None;
+        let mut cur_p_abc = Vector3::ZERO;
 
         for tri in self.tris.iter() {
             let src_abc = tri.m_abc * (ray.src - tri.a);
             let dir_abc = tri.m_abc * ray.dir1;
 
-            if src_abc.z() < EPS || dir_abc.z() > EPS {
+            if src_abc.z() < N::EPS || dir_abc.z() > N::EPS {
                 continue;
             }
 
@@ -218,7 +204,9 @@ impl<'a> Node<'a> {
             let p_abc = src_abc + dir_abc * d;
 
             if likely(
-                p_abc.x() < -EPS || p_abc.y() < -EPS || p_abc.x() + p_abc.y() > ff32(1.0) + EPS,
+                p_abc.x() < -N::EPS
+                    || p_abc.y() < -N::EPS
+                    || p_abc.x() + p_abc.y() > N::ONE + N::EPS,
             ) {
                 continue;
             }
@@ -241,9 +229,9 @@ impl<'a> Node<'a> {
 
     #[inline(always)]
     fn choose_from_2(
-        isec1: Option<RayIntersection<'a>>,
-        isec2: Option<RayIntersection<'a>>,
-    ) -> Option<RayIntersection<'a>> {
+        isec1: Option<RayIntersection<'a, N>>,
+        isec2: Option<RayIntersection<'a, N>>,
+    ) -> Option<RayIntersection<'a, N>> {
         match (isec1, isec2) {
             (isec1, None) => isec1,
             (None, isec2) => isec2,
@@ -260,27 +248,27 @@ impl<'a> Node<'a> {
 
     #[inline(always)]
     fn choose_from_3(
-        isec1: Option<RayIntersection<'a>>,
-        isec2: Option<RayIntersection<'a>>,
-        isec3: Option<RayIntersection<'a>>,
-    ) -> Option<RayIntersection<'a>> {
+        isec1: Option<RayIntersection<'a, N>>,
+        isec2: Option<RayIntersection<'a, N>>,
+        isec3: Option<RayIntersection<'a, N>>,
+    ) -> Option<RayIntersection<'a, N>> {
         Self::choose_from_2(isec1, Self::choose_from_2(isec2, isec3))
     }
+}
 
-    fn cast_ray(&'a self, ray: Ray, max_d: ff32) -> Option<RayIntersection<'a>> {
-        const EPS: ff32 = ff32(1.0e-4);
-
+impl<'a, N: Num> Castable<'a, N> for Node<'a, N> {
+    fn cast_ray(&'a self, ray: Ray<N>, max_d: N) -> Option<RayIntersection<'a, N>> {
         let src_bs = self.mat * (ray.src - self.origin);
         let dir_bs = self.mat * ray.dir1;
 
-        if src_bs.z() < ff32(0.0) && dir_bs.z() < ff32(0.0) {
+        if src_bs.z() < N::ZERO && dir_bs.z() < N::ZERO {
             return Self::choose_from_2(
                 self.cast_through_own(ray, max_d),
                 self.neg.as_ref().and_then(|n| n.cast_ray(ray, max_d)),
             );
         }
 
-        if src_bs.z() > ff32(0.0) && dir_bs.z() > ff32(0.0) {
+        if src_bs.z() > N::ZERO && dir_bs.z() > N::ZERO {
             return Self::choose_from_2(
                 self.cast_through_own(ray, max_d),
                 self.pos.as_ref().and_then(|n| n.cast_ray(ray, max_d)),
@@ -295,8 +283,8 @@ impl<'a> Node<'a> {
     }
 }
 
-impl<'a> BspTree<'a> {
-    pub fn cast_ray(&'a self, ray: Ray, max_d: ff32) -> Option<RayIntersection<'a>> {
+impl<'a, N: Num> Castable<'a, N> for BspTree<'a, N> {
+    fn cast_ray(&'a self, ray: Ray<N>, max_d: N) -> Option<RayIntersection<'a, N>> {
         self.root.as_ref().and_then(|n| n.cast_ray(ray, max_d))
     }
 }

@@ -1,21 +1,23 @@
 use crate::cast::*;
 use crate::math::*;
 
-#[derive(Debug)]
-pub struct UvSphere {
-    pub triangles: Vec<Triangle>,
+struct Vertex<N: Num> {
+    /// latitude
+    lat: N,
+
+    /// longitude
+    long: N,
+
+    /// vertex coords
+    p: Vector3<N>,
+
+    /// vertex normal
+    nc: Vector3<N>,
 }
 
-struct Vertex {
-    lat: ff32,
-    long: ff32,
-    p: ff32_3,
-    nc: ff32_3,
-}
-
-impl UvSphere {
-    fn vertex_at(center: ff32_3, radius: ff32, lat: ff32, long: ff32) -> Vertex {
-        let or = ff32_3::new(
+impl<N: Num> Vertex<N> {
+    fn new(center: Vector3<N>, radius: N, lat: N, long: N) -> Self {
+        let or = Vector3::new(
             radius * long.cos() * lat.cos(),
             radius * lat.sin(),
             radius * long.sin() * lat.cos(),
@@ -29,14 +31,14 @@ impl UvSphere {
         }
     }
 
-    fn push_triangle(&mut self, va: &Vertex, vb: &Vertex, vc: &Vertex) {
-        self.triangles.push(Triangle {
+    fn make_triangle(va: &Self, vb: &Self, vc: &Self) -> Triangle<N> {
+        Triangle {
             a: va.p,
 
-            m_abc: ff32_3x3::from_cols(
+            m_abc: Matrix3::from_cols(
                 vb.p - va.p,
                 vc.p - va.p,
-                ff32_3::cross(vb.p - va.p, vc.p - va.p).norm(),
+                Vector3::cross(vb.p - va.p, vc.p - va.p).norm(),
             )
             .inv()
             .unwrap(),
@@ -46,38 +48,43 @@ impl UvSphere {
                 b: vb.p,
                 c: vc.p,
 
-                abc_nc: ff32_3x3::from_cols(va.nc, vb.nc, vc.nc),
+                abc_nc: Matrix3::from_cols(va.nc, vb.nc, vc.nc),
 
-                abc_uv: ff32_3x3::from_cols(
-                    ff32_3::new(va.long, va.lat, ff32(0.0)),
-                    ff32_3::new(vb.long, vb.lat, ff32(0.0)),
-                    ff32_3::new(vc.long, vc.lat, ff32(0.0)),
+                abc_uv: Matrix3::from_cols(
+                    Vector3::new(va.long, va.lat, N::ZERO),
+                    Vector3::new(vb.long, vb.lat, N::ZERO),
+                    Vector3::new(vc.long, vc.lat, N::ZERO),
                 ),
             }),
-        });
-    }
-
-    pub fn new(center: ff32_3, radius: ff32, n_subdiv_lat: usize, n_subdiv_long: usize) -> Self {
-        let mut sphere = UvSphere { triangles: vec![] };
-
-        let lat_step = ff32(std::f32::consts::PI / (n_subdiv_lat as f32));
-        let long_step = ff32(2.0 * std::f32::consts::PI / (n_subdiv_long as f32));
-
-        for i_lat in 0..n_subdiv_lat {
-            for i_long in 0..n_subdiv_long {
-                let lat0 = ff32(-std::f32::consts::FRAC_PI_2) + ff32::from_usize(i_lat) * lat_step;
-                let long0 = ff32::from_usize(i_long) * long_step;
-
-                let v1 = UvSphere::vertex_at(center, radius, lat0, long0);
-                let v2 = UvSphere::vertex_at(center, radius, lat0 + lat_step, long0);
-                let v3 = UvSphere::vertex_at(center, radius, lat0 + lat_step, long0 + long_step);
-                let v4 = UvSphere::vertex_at(center, radius, lat0, long0 + long_step);
-
-                sphere.push_triangle(&v1, &v2, &v3);
-                sphere.push_triangle(&v1, &v3, &v4);
-            }
         }
-
-        sphere
     }
+}
+
+pub fn make_uv_sphere<N: Num>(
+    center: Vector3<N>,
+    radius: N,
+    n_subdiv_lat: usize,
+    n_subdiv_long: usize,
+) -> TriangleList<N> {
+    let mut sphere = TriangleList { triangles: vec![] };
+
+    let lat_step = N::PI / N::from_usize(n_subdiv_lat);
+    let long_step = (N::PI + N::PI) / N::from_usize(n_subdiv_long);
+
+    for i_lat in 0..n_subdiv_lat {
+        for i_long in 0..n_subdiv_long {
+            let lat0 = N::PI / (N::ONE + N::ONE) + N::from_usize(i_lat) * lat_step;
+            let long0 = N::from_usize(i_long) * long_step;
+
+            let v1 = Vertex::new(center, radius, lat0, long0);
+            let v2 = Vertex::new(center, radius, lat0 + lat_step, long0);
+            let v3 = Vertex::new(center, radius, lat0 + lat_step, long0 + long_step);
+            let v4 = Vertex::new(center, radius, lat0, long0 + long_step);
+
+            sphere.triangles.push(Vertex::make_triangle(&v1, &v2, &v3));
+            sphere.triangles.push(Vertex::make_triangle(&v1, &v3, &v4));
+        }
+    }
+
+    sphere
 }

@@ -36,26 +36,24 @@ macro_rules! LinearSpace_tests {
 
             #[quickcheck]
             fn addition(a: $T<r64>, b: $T<r64>, c: $T<r64>) -> bool {
-                (a + $T::zero() == a) && (a + b == b + a) && ((a + b) + c == a + (b + c))
+                (a + $T::ZERO == a) && (a + b == b + a) && ((a + b) + c == a + (b + c))
             }
 
             #[quickcheck]
             fn subtraction(a: $T<r64>, b: $T<r64>) -> bool {
-                (a - a + a == a) && (a - b == $T::zero() - (b - a)) && (a + $T::zero() == a)
+                (a - a + a == a) && (a - b == $T::ZERO - (b - a)) && (a + $T::ZERO == a)
             }
 
             #[quickcheck]
             fn scalar_multiplication(a: $T<r64>, alpha: r64, beta: r64) -> bool {
-                (a * r64::zero() == $T::zero())
-                    && (a * r64::one() == a)
+                (a * r64::ZERO == $T::ZERO)
+                    && (a * r64::ONE == a)
                     && ((a * alpha) * beta == a * (alpha * beta))
             }
 
             #[quickcheck]
             fn scalar_division(a: $T<r64>, alpha: r64) -> bool {
-                (a * r64::one() == a)
-                    && (a * r64::zero() == $T::zero())
-                    && ((a * alpha) / alpha == a)
+                (a * r64::ONE == a) && (a * r64::ZERO == $T::ZERO) && ((a * alpha) / alpha == a)
             }
         }
     };

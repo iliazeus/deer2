@@ -18,10 +18,8 @@ impl Display for ff32 {
 }
 
 impl Num for ff32 {
-    #[inline(always)]
-    fn pi() -> Self {
-        ff32(f32::pi())
-    }
+    const EPS: Self = ff32(1e-4);
+    const PI: Self = ff32(std::f32::consts::PI);
 
     #[inline(always)]
     fn from_usize(x: usize) -> Self {
@@ -50,17 +48,11 @@ impl Num for ff32 {
 }
 
 impl Zero for ff32 {
-    #[inline(always)]
-    fn zero() -> ff32 {
-        ff32(0.0)
-    }
+    const ZERO: Self = ff32(0.0);
 }
 
 impl One for ff32 {
-    #[inline(always)]
-    fn one() -> ff32 {
-        ff32(1.0)
-    }
+    const ONE: Self = ff32(1.0);
 }
 
 impl Neg for ff32 {

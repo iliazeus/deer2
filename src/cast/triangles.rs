@@ -1,65 +1,8 @@
 use crate::math::*;
 
+use super::*;
+
 use std::intrinsics::likely;
-
-#[derive(Debug, Clone, Copy)]
-pub struct Ray {
-    /// ray source
-    pub src: ff32_3,
-
-    /// unit-length ray direction
-    pub dir1: ff32_3,
-}
-
-#[derive(Debug)]
-pub struct Triangle {
-    /// vertex A
-    pub a: ff32_3,
-
-    /// transformation matrix into the (AB, AC, N1) space,
-    /// where A, B, C are vertices, N1 is the unit normal
-    pub m_abc: ff32_3x3,
-
-    /// indirection to fit in a cache line
-    pub meta: Box<TriangleMeta>,
-}
-
-#[derive(Debug)]
-pub struct TriangleMeta {
-    pub a: ff32_3,
-    pub b: ff32_3,
-    pub c: ff32_3,
-
-    /// cols are vertex normals; length == curvature
-    pub abc_nc: ff32_3x3,
-
-    /// cols are vertex UV
-    pub abc_uv: ff32_3x3,
-}
-
-#[derive(Debug)]
-pub struct RayIntersection<'a> {
-    /// triangle
-    pub tri: &'a Triangle,
-
-    /// distance from origin along the ray
-    pub d: ff32,
-
-    /// intersection point in (AB, AC, N1) space
-    pub p_abc: ff32_3,
-}
-
-#[derive(Debug)]
-pub struct InterpolatedMeta {
-    /// weights of vertices for linear interpolation
-    pub w: ff32_3,
-
-    /// interpolated normal
-    pub n1_p: ff32_3,
-
-    /// UV coords of the intersection point
-    pub p_uv: ff32_3,
-}
 
 pub fn cast_ray_through_triangles<'a>(
     ray: Ray,
@@ -70,7 +13,7 @@ pub fn cast_ray_through_triangles<'a>(
 
     let mut cur_d = max_d;
     let mut cur_tri: Option<&Triangle> = None;
-    let mut cur_p_abc = ff32_3::zero();
+    let mut cur_p_abc = ff32_3::ZERO;
 
     for tri in triangles {
         let src_abc = tri.m_abc * (ray.src - tri.a);

@@ -117,40 +117,17 @@ impl<T: Num> DivAssign<T> for Vector3<T> {
 }
 
 impl<T: Num> Zero for Vector3<T> {
-    #[inline(always)]
-    fn zero() -> Self {
-        self_from_3!(T::zero())
-    }
+    const ZERO: Self = self_from_3!(T::ZERO);
 }
 
 impl<T: Num> One for Vector3<T> {
-    #[inline(always)]
-    fn one() -> Self {
-        self_from_3!(T::one())
-    }
+    const ONE: Self = self_from_3!(T::ONE);
 }
 
 impl<T: Num> Vector3<T> {
-    #[inline(always)]
-    pub fn ex() -> Self {
-        let _0 = T::zero();
-        let _1 = T::one();
-        Self(_1, _0, _0)
-    }
-
-    #[inline(always)]
-    pub fn ey() -> Self {
-        let _0 = T::zero();
-        let _1 = T::one();
-        Self(_0, _1, _0)
-    }
-
-    #[inline(always)]
-    pub fn ez() -> Self {
-        let _0 = T::zero();
-        let _1 = T::one();
-        Self(_0, _0, _1)
-    }
+    pub const EX: Self = Self(T::ONE, T::ZERO, T::ZERO);
+    pub const EY: Self = Self(T::ZERO, T::ONE, T::ZERO);
+    pub const EZ: Self = Self(T::ZERO, T::ZERO, T::ONE);
 
     #[inline(always)]
     pub fn abs2(&self) -> T {
@@ -228,11 +205,11 @@ mod tests {
     fn dot_product(a: r64_3, b: r64_3, alpha: r64) -> bool {
         (r64_3::dot(a, b) == r64_3::dot(b, a))
             && (r64_3::dot(a, b * alpha) == alpha * r64_3::dot(a, b))
-            && (r64_3::dot(a, r64_3::zero()) == r64::zero())
+            && (r64_3::dot(a, r64_3::ZERO) == r64::ZERO)
     }
 
     #[quickcheck]
     fn cross_product(a: r64_3, b: r64_3) -> bool {
-        r64_3::dot(r64_3::cross(a, b), a) == r64::zero()
+        r64_3::dot(r64_3::cross(a, b), a) == r64::ZERO
     }
 }
